@@ -1,36 +1,34 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import type { User } from '@/services/auth'
+import { Session } from 'next-auth'
 
-interface AuthState {
-  user: User | null
-  token: string | null
-  isAuthenticated: boolean
-  setAuth: (user: User, token: string) => void
+interface User {
+  id: string
+  name?: string
+  email?: string
+  image?: string
+}
+
+interface AuthStore {
+  session: Session | null
+  setSession: (session: Session | null) => void
+  isLoading: boolean
+  setIsLoading: (isLoading: boolean) => void
+  login: (token: string, user: User) => void
   logout: () => void
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    set => ({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      setAuth: (user: User, token: string) =>
-        set({
-          user,
-          token,
-          isAuthenticated: true,
-        }),
-      logout: () =>
-        set({
-          user: null,
-          token: null,
-          isAuthenticated: false,
-        }),
+export const useAuthStore = create<AuthStore>(set => ({
+  session: null,
+  setSession: session => set({ session }),
+  isLoading: true,
+  setIsLoading: isLoading => set({ isLoading }),
+  login: (token, user) =>
+    set({
+      session: {
+        user,
+        accessToken: token,
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      },
     }),
-    {
-      name: 'auth-storage',
-    }
-  )
-)
+  logout: () => set({ session: null }),
+}))

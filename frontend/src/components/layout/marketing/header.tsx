@@ -1,9 +1,9 @@
 'use client'
 
-import { Button, Menu } from 'antd'
-import { useRouter } from 'next/navigation'
+import { Menu } from 'antd'
 import Link from 'next/link'
 import Image from 'next/image'
+import { UserMenu } from '../UserMenu'
 
 const menuItems = [
   {
@@ -24,8 +24,6 @@ const menuItems = [
 ]
 
 export function MarketingHeader() {
-  const router = useRouter()
-
   return (
     <div className="flex items-center justify-between h-16 px-4 mx-auto max-w-7xl">
       {/* Logo */}
@@ -50,23 +48,8 @@ export function MarketingHeader() {
         />
       </div>
 
-      {/* Auth Buttons */}
-      <div className="flex items-center space-x-4">
-        <Button
-          type="link"
-          onClick={() => router.push('/login')}
-          className="text-gray-600 hover:text-gray-900"
-        >
-          登录
-        </Button>
-        <Button
-          type="primary"
-          onClick={() => router.push('/register')}
-          className="text-white hover:text-white/90"
-        >
-          注册
-        </Button>
-      </div>
+      {/* Auth Menu */}
+      <UserMenu />
     </div>
   )
 }

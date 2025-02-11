@@ -1,5 +1,5 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create, StateCreator } from 'zustand'
+import { persist, PersistOptions } from 'zustand/middleware'
 import type { ThemeState } from '@/types/store'
 
 interface ThemeStore extends ThemeState {
@@ -7,13 +7,18 @@ interface ThemeStore extends ThemeState {
   setPrimaryColor: (color: string) => void
 }
 
+type ThemePersist = (
+  config: StateCreator<ThemeStore>,
+  options: PersistOptions<ThemeStore>
+) => StateCreator<ThemeStore>
+
 const initialState: ThemeState = {
   isDarkMode: false,
   primaryColor: '#1677ff',
 }
 
 export const useThemeStore = create<ThemeStore>()(
-  persist(
+  (persist as ThemePersist)(
     set => ({
       ...initialState,
 
