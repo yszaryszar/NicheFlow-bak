@@ -81,18 +81,23 @@ type CORSConfig struct {
 }
 
 type OAuthConfig struct {
-	Google  OAuthProviderConfig `mapstructure:"google"`
-	GitHub  OAuthProviderConfig `mapstructure:"github"`
-	BaseURL string              `mapstructure:"base_url"`
-}
-
-type OAuthProviderConfig struct {
-	ClientID     string   `mapstructure:"client_id"`
-	ClientSecret string   `mapstructure:"client_secret"`
-	RedirectURI  string   `mapstructure:"redirect_uri"`
-	Scopes       []string `mapstructure:"scopes"`
-	TokenURL     string   `mapstructure:"token_url"`
-	UserInfoURL  string   `mapstructure:"user_info_url"`
+	BaseURL string `mapstructure:"base_url"`
+	Google  struct {
+		ClientID     string   `mapstructure:"client_id"`
+		ClientSecret string   `mapstructure:"client_secret"`
+		RedirectURI  string   `mapstructure:"redirect_uri"`
+		Scopes       []string `mapstructure:"scopes"`
+		TokenURL     string   `mapstructure:"token_url"`
+		UserInfoURL  string   `mapstructure:"user_info_url"`
+	} `mapstructure:"google"`
+	GitHub struct {
+		ClientID     string   `mapstructure:"client_id"`
+		ClientSecret string   `mapstructure:"client_secret"`
+		RedirectURI  string   `mapstructure:"redirect_uri"`
+		Scopes       []string `mapstructure:"scopes"`
+		TokenURL     string   `mapstructure:"token_url"`
+		UserInfoURL  string   `mapstructure:"user_info_url"`
+	} `mapstructure:"github"`
 }
 
 var cfg *Config

@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"os"
 	"sync"
 	"time"
 
@@ -59,7 +60,15 @@ func NewPostgresDB(cfg *config.DatabaseConfig) (*gorm.DB, error) {
 
 	// 配置 GORM
 	gormConfig := &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags),
+			logger.Config{
+				SlowThreshold:             time.Second,
+				LogLevel:                  logger.Silent,
+				IgnoreRecordNotFoundError: true,
+				Colorful:                  false,
+			},
+		),
 	}
 
 	// 连接数据库

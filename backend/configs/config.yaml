@@ -64,7 +64,6 @@ oauth:
   google:
     client_id: ${GOOGLE_CLIENT_ID}
     client_secret: ${GOOGLE_CLIENT_SECRET}
-    redirect_uri: ${APP_BASE_URL}/api/auth/callback/google
     scopes:
       - openid
       - profile
@@ -72,7 +71,6 @@ oauth:
   github:
     client_id: ${GITHUB_CLIENT_ID}
     client_secret: ${GITHUB_CLIENT_SECRET}
-    redirect_uri: ${APP_BASE_URL}/api/auth/callback/github
     scopes:
       - user
       - user:email 

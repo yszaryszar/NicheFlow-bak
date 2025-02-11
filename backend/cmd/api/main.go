@@ -11,6 +11,7 @@ import (
 	"github.com/yszaryszar/NicheFlow/backend/internal/config"
 	"github.com/yszaryszar/NicheFlow/backend/internal/handler"
 	"github.com/yszaryszar/NicheFlow/backend/internal/middleware"
+	"github.com/yszaryszar/NicheFlow/backend/internal/model"
 	"github.com/yszaryszar/NicheFlow/backend/pkg/cache"
 	"github.com/yszaryszar/NicheFlow/backend/pkg/database"
 )
@@ -43,11 +44,19 @@ func main() {
 		log.Fatalf("加载配置失败: %v", err)
 	}
 
+	// 设置运行模式
+	gin.SetMode(cfg.App.Mode)
+
 	// 初始化数据库连接
 	if _, err := database.NewPostgresDB(&cfg.Database); err != nil {
 		log.Fatalf("初始化数据库失败: %v", err)
 	}
 	defer database.Close()
+
+	// 运行数据库迁移
+	if err := model.AutoMigrate(); err != nil {
+		log.Fatalf("数据库迁移失败: %v", err)
+	}
 
 	// 初始化 Redis 连接
 	if _, err := cache.NewRedisClient(&cfg.Redis); err != nil {
@@ -55,11 +64,14 @@ func main() {
 	}
 	defer cache.Close()
 
-	// 设置运行模式
-	gin.SetMode(cfg.App.Mode)
-
 	// 创建路由
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Recovery())
+
+	// 只在开发模式下启用日志中间件
+	if cfg.App.Mode == gin.DebugMode {
+		r.Use(gin.Logger())
+	}
 
 	// 注册 Swagger 路由
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -75,6 +87,7 @@ func main() {
 		{
 			// 公开路由
 			auth.GET("/providers", authHandler.HandleProviders)
+			auth.GET("/url/:provider", authHandler.HandleAuthURL)
 			auth.GET("/callback/:provider", authHandler.HandleCallback)
 			auth.GET("/verify-email", authHandler.HandleVerifyEmail)
 

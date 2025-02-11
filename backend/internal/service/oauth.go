@@ -30,63 +30,67 @@ func NewOAuthService(cfg *config.Config) *OAuthService {
 func (s *OAuthService) GetAuthURL(provider string) (string, error) {
 	var authURL string
 	var clientID string
-	var redirectURI string
 	var scopes []string
 
 	switch provider {
 	case "google":
 		authURL = "https://accounts.google.com/o/oauth2/v2/auth"
 		clientID = s.cfg.OAuth.Google.ClientID
-		redirectURI = s.cfg.OAuth.Google.RedirectURI
 		scopes = s.cfg.OAuth.Google.Scopes
 	case "github":
 		authURL = "https://github.com/login/oauth/authorize"
 		clientID = s.cfg.OAuth.GitHub.ClientID
-		redirectURI = s.cfg.OAuth.GitHub.RedirectURI
 		scopes = s.cfg.OAuth.GitHub.Scopes
 	default:
 		return "", fmt.Errorf("不支持的认证提供商: %s", provider)
 	}
 
+	// 构建重定向 URL
+	redirectURI := fmt.Sprintf("%s/api/auth/callback/%s", s.cfg.OAuth.BaseURL, provider)
+
+	// 构建参数，确保参数顺序符合 OAuth 2.0 规范
 	params := url.Values{}
-	params.Add("client_id", clientID)
-	params.Add("redirect_uri", redirectURI)
-	params.Add("scope", strings.Join(scopes, " "))
-	params.Add("response_type", "code")
+	params.Set("response_type", "code") // 将 response_type 放在最前面
+	params.Set("client_id", clientID)
+	params.Set("redirect_uri", redirectURI)
+	params.Set("scope", strings.Join(scopes, " "))
 
 	if provider == "google" {
-		params.Add("access_type", "offline")
-		params.Add("prompt", "consent")
+		params.Set("access_type", "offline")
+		params.Set("prompt", "consent")
+		params.Set("include_granted_scopes", "true") // 添加此参数以包含已授权的权限
 	}
 
-	return fmt.Sprintf("%s?%s", authURL, params.Encode()), nil
+	// 使用 url.URL 来构建完整的 URL
+	u, err := url.Parse(authURL)
+	if err != nil {
+		return "", fmt.Errorf("解析认证 URL 失败: %w", err)
+	}
+	u.RawQuery = params.Encode()
+
+	return u.String(), nil
 }
 
 // ExchangeCode 使用授权码交换令牌
 func (s *OAuthService) ExchangeCode(ctx context.Context, provider string, code string) (map[string]interface{}, error) {
 	var tokenURL string
-	var clientID, clientSecret, redirectURI string
+	var clientID, clientSecret string
 
 	switch provider {
 	case "google":
 		tokenURL = "https://oauth2.googleapis.com/token"
-		if s.cfg.OAuth.Google.TokenURL != "" {
-			tokenURL = s.cfg.OAuth.Google.TokenURL
-		}
 		clientID = s.cfg.OAuth.Google.ClientID
 		clientSecret = s.cfg.OAuth.Google.ClientSecret
-		redirectURI = s.cfg.OAuth.Google.RedirectURI
 	case "github":
 		tokenURL = "https://github.com/login/oauth/access_token"
-		if s.cfg.OAuth.GitHub.TokenURL != "" {
-			tokenURL = s.cfg.OAuth.GitHub.TokenURL
-		}
 		clientID = s.cfg.OAuth.GitHub.ClientID
 		clientSecret = s.cfg.OAuth.GitHub.ClientSecret
-		redirectURI = s.cfg.OAuth.GitHub.RedirectURI
 	default:
 		return nil, fmt.Errorf("不支持的认证提供商: %s", provider)
 	}
+
+	// 构建重定向 URL
+	redirectURI := fmt.Sprintf("%s/api/auth/callback/%s", s.cfg.OAuth.BaseURL, provider)
 
 	// 准备请求数据
 	data := url.Values{}
@@ -161,14 +165,8 @@ func (s *OAuthService) GetUserInfo(ctx context.Context, provider string, token m
 	switch provider {
 	case "google":
 		userInfoURL = "https://www.googleapis.com/oauth2/v3/userinfo"
-		if s.cfg.OAuth.Google.UserInfoURL != "" {
-			userInfoURL = s.cfg.OAuth.Google.UserInfoURL
-		}
 	case "github":
 		userInfoURL = "https://api.github.com/user"
-		if s.cfg.OAuth.GitHub.UserInfoURL != "" {
-			userInfoURL = s.cfg.OAuth.GitHub.UserInfoURL
-		}
 	default:
 		return nil, fmt.Errorf("不支持的认证提供商: %s", provider)
 	}

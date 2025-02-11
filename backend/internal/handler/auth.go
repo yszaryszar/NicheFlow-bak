@@ -24,8 +24,9 @@ type ProviderResponse struct {
 
 // AuthResponse 认证响应
 type AuthResponse struct {
-	Session *model.Session `json:"session"`
-	User    *model.User    `json:"user"`
+	Session     *model.Session `json:"session"`
+	User        *model.User    `json:"user"`
+	AccessToken string         `json:"access_token"`
 }
 
 // MessageResponse 消息响应
@@ -185,8 +186,9 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, AuthResponse{
-		Session: session,
-		User:    existingUser,
+		Session:     session,
+		User:        existingUser,
+		AccessToken: session.SessionToken,
 	})
 }
 
@@ -267,4 +269,30 @@ func (h *AuthHandler) HandleVerifyEmail(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, MessageResponse{Message: "邮箱验证成功"})
+}
+
+// HandleAuthURL godoc
+// @Summary 获取认证 URL
+// @Description 获取指定提供商的认证 URL
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param provider path string true "认证提供商" Enums(google,github)
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} ErrorResponse
+// @Router /auth/url/{provider} [get]
+func (h *AuthHandler) HandleAuthURL(c *gin.Context) {
+	provider := c.Param("provider")
+	if provider != "google" && provider != "github" {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "不支持的认证提供商"})
+		return
+	}
+
+	url, err := h.oauthService.GetAuthURL(provider)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "生成认证 URL 失败: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"url": url})
 }
