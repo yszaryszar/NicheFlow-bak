@@ -21,15 +21,11 @@ export default function HomePage() {
             帮助创作者和卖家快速生成优质内容。
           </p>
           <div className="flex justify-center gap-4">
-            <Button type="primary" size="large">
-              <Link href="/register" className="text-white hover:text-white/90">
-                免费开始使用
-              </Link>
+            <Button type="primary" size="large" className="text-white hover:text-white/90">
+              <Link href="/register">免费开始使用</Link>
             </Button>
-            <Button size="large">
-              <Link href="/#features" className="text-gray-600 hover:text-gray-800">
-                了解更多
-              </Link>
+            <Button size="large" className="text-gray-600 hover:text-gray-800">
+              <Link href="/#features">了解更多</Link>
             </Button>
           </div>
         </div>
@@ -83,10 +79,8 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-3xl font-bold mb-6">准备好开始了吗？</h2>
           <p className="text-xl text-gray-600 mb-8">立即注册，体验AI驱动的内容创作新方式。</p>
-          <Button type="primary" size="large">
-            <Link href="/register" className="text-white hover:text-white/90">
-              免费开始使用
-            </Link>
+          <Button type="primary" size="large" className="text-white hover:text-white/90">
+            <Link href="/register">免费开始使用</Link>
           </Button>
         </div>
       </section>
