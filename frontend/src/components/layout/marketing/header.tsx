@@ -41,17 +41,29 @@ export function MarketingHeader() {
           className="border-none bg-transparent"
           items={menuItems.map(item => ({
             key: item.key,
-            label: <Link href={item.href}>{item.label}</Link>,
+            label: (
+              <Link href={item.href} className="text-gray-600 hover:text-gray-900">
+                {item.label}
+              </Link>
+            ),
           }))}
         />
       </div>
 
       {/* Auth Buttons */}
       <div className="flex items-center space-x-4">
-        <Button type="link" onClick={() => router.push('/login')}>
+        <Button
+          type="link"
+          onClick={() => router.push('/login')}
+          className="text-gray-600 hover:text-gray-900"
+        >
           登录
         </Button>
-        <Button type="primary" onClick={() => router.push('/register')}>
+        <Button
+          type="primary"
+          onClick={() => router.push('/register')}
+          className="text-white hover:text-white/90"
+        >
           注册
         </Button>
       </div>

@@ -22,10 +22,14 @@ export default function HomePage() {
           </p>
           <div className="flex justify-center gap-4">
             <Button type="primary" size="large">
-              <Link href="/register">免费开始使用</Link>
+              <Link href="/register" className="text-white hover:text-white/90">
+                免费开始使用
+              </Link>
             </Button>
             <Button size="large">
-              <Link href="/#features">了解更多</Link>
+              <Link href="/#features" className="text-gray-600 hover:text-gray-800">
+                了解更多
+              </Link>
             </Button>
           </div>
         </div>
@@ -80,7 +84,9 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold mb-6">准备好开始了吗？</h2>
           <p className="text-xl text-gray-600 mb-8">立即注册，体验AI驱动的内容创作新方式。</p>
           <Button type="primary" size="large">
-            <Link href="/register">免费开始使用</Link>
+            <Link href="/register" className="text-white hover:text-white/90">
+              免费开始使用
+            </Link>
           </Button>
         </div>
       </section>
