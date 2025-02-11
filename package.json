@@ -1,0 +1,39 @@
+{
+  "name": "nicheflow",
+  "version": "0.1.0",
+  "description": "AI驱动的垂直平台内容创作助手",
+  "author": "Jiu Yang <yszaryszar@gmail.com> (https://jiuyang.pro)",
+  "license": "MIT",
+  "homepage": "https://jiuyang.pro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yszaryszar/NicheFlow"
+  },
+  "bugs": {
+    "url": "https://github.com/yszaryszar/NicheFlow/issues"
+  },
+  "keywords": [
+    "nicheflow",
+    "tiktok",
+    "content-creation",
+    "ai"
+  ],
+  "scripts": {
+    "commit": "git-cz",
+    "release": "standard-version",
+    "prepare": "husky install"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-git"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.0.0",
+    "@commitlint/config-conventional": "^17.0.0",
+    "commitizen": "^4.2.4",
+    "cz-git": "^1.11.0",
+    "husky": "^8.0.0",
+    "standard-version": "^9.5.0"
+  }
+}
