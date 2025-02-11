@@ -11,6 +11,7 @@ import (
 	"github.com/yszaryszar/NicheFlow/backend/internal/config"
 	"github.com/yszaryszar/NicheFlow/backend/internal/model"
 	"github.com/yszaryszar/NicheFlow/backend/internal/service"
+	"github.com/yszaryszar/NicheFlow/backend/pkg/response"
 	"gorm.io/gorm"
 )
 
@@ -79,7 +80,7 @@ func (h *AuthHandler) HandleProviders(c *gin.Context) {
 		},
 	}
 
-	c.JSON(http.StatusOK, gin.H{"providers": providers})
+	response.Success(c, gin.H{"providers": providers})
 }
 
 // HandleCallback godoc
@@ -98,27 +99,27 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	provider := c.Param("provider")
 	code := c.Query("code")
 	if code == "" {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "未提供授权码"})
+		response.ValidationError(c, "未提供授权码")
 		return
 	}
 
 	// 验证提供商
 	if provider != "google" && provider != "github" {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "不支持的认证提供商"})
+		response.ValidationError(c, "不支持的认证提供商")
 		return
 	}
 
 	// 使用授权码交换令牌
 	token, err := h.oauthService.ExchangeCode(c.Request.Context(), provider, code)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "获取令牌失败: " + err.Error()})
+		response.Error(c, http.StatusInternalServerError, "获取令牌失败", err)
 		return
 	}
 
 	// 获取用户信息
 	user, err := h.oauthService.GetUserInfo(c.Request.Context(), provider, token)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "获取用户信息失败: " + err.Error()})
+		response.Error(c, http.StatusInternalServerError, "获取用户信息失败", err)
 		return
 	}
 
@@ -126,12 +127,12 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	existingUser, err := h.authService.GetUserByEmail(c.Request.Context(), user.Email)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "查询用户失败: " + err.Error()})
+			response.Error(c, http.StatusInternalServerError, "查询用户失败", err)
 			return
 		}
 		// 创建新用户
 		if err := h.authService.CreateUser(c.Request.Context(), user); err != nil {
-			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "创建用户失败: " + err.Error()})
+			response.Error(c, http.StatusInternalServerError, "创建用户失败", err)
 			return
 		}
 		existingUser = user
@@ -140,7 +141,7 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	// 创建或更新 OAuth 账号
 	providerAccount, err := json.Marshal(token)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "序列化令牌失败"})
+		response.Error(c, http.StatusInternalServerError, "序列化令牌失败", err)
 		return
 	}
 
@@ -174,18 +175,18 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	}
 
 	if err := h.authService.CreateAccount(c.Request.Context(), account); err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "保存账号信息失败"})
+		response.Error(c, http.StatusInternalServerError, "保存账号信息失败", err)
 		return
 	}
 
 	// 创建会话
 	session, err := h.authService.CreateSession(c.Request.Context(), existingUser.ID, time.Now().Add(24*time.Hour))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "创建会话失败"})
+		response.Error(c, http.StatusInternalServerError, "创建会话失败", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, AuthResponse{
+	response.Success(c, AuthResponse{
 		Session:     session,
 		User:        existingUser,
 		AccessToken: session.SessionToken,
@@ -206,24 +207,24 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 func (h *AuthHandler) HandleSignOut(c *gin.Context) {
 	session, exists := c.Get("session")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "未找到会话"})
+		response.UnauthorizedError(c, "未找到会话")
 		return
 	}
 
 	// 类型断言
 	sessionModel, ok := session.(*model.Session)
 	if !ok {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "会话类型错误"})
+		response.Error(c, http.StatusInternalServerError, "会话类型错误", nil)
 		return
 	}
 
 	// 删除会话
 	if err := h.authService.DeleteSession(c.Request.Context(), sessionModel.SessionToken); err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "删除会话失败"})
+		response.Error(c, http.StatusInternalServerError, "删除会话失败", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, MessageResponse{Message: "退出成功"})
+	response.Success(c, gin.H{"message": "退出成功"})
 }
 
 // HandleSession godoc
@@ -239,11 +240,11 @@ func (h *AuthHandler) HandleSignOut(c *gin.Context) {
 func (h *AuthHandler) HandleSession(c *gin.Context) {
 	user, exists := c.Get("user")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "未找到用户"})
+		response.UnauthorizedError(c, "未找到用户")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	response.Success(c, gin.H{"user": user})
 }
 
 // HandleVerifyEmail godoc
@@ -259,16 +260,16 @@ func (h *AuthHandler) HandleSession(c *gin.Context) {
 func (h *AuthHandler) HandleVerifyEmail(c *gin.Context) {
 	token := c.Query("token")
 	if token == "" {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "未提供验证令牌"})
+		response.ValidationError(c, "未提供验证令牌")
 		return
 	}
 
 	if err := h.authService.VerifyEmail(c.Request.Context(), token); err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "验证失败"})
+		response.ValidationError(c, "验证失败")
 		return
 	}
 
-	c.JSON(http.StatusOK, MessageResponse{Message: "邮箱验证成功"})
+	response.Success(c, gin.H{"message": "邮箱验证成功"})
 }
 
 // HandleAuthURL godoc
@@ -284,15 +285,15 @@ func (h *AuthHandler) HandleVerifyEmail(c *gin.Context) {
 func (h *AuthHandler) HandleAuthURL(c *gin.Context) {
 	provider := c.Param("provider")
 	if provider != "google" && provider != "github" {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "不支持的认证提供商"})
+		response.ValidationError(c, "不支持的认证提供商")
 		return
 	}
 
 	url, err := h.oauthService.GetAuthURL(provider)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "生成认证 URL 失败: " + err.Error()})
+		response.Error(c, http.StatusInternalServerError, "生成认证 URL 失败", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"url": url})
+	response.Success(c, gin.H{"url": url})
 }

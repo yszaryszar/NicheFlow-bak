@@ -9,17 +9,20 @@ import { useLocale } from '@/hooks/useLocale'
 import { messages } from '@/i18n/config'
 import { IntlProvider } from 'react-intl'
 import { queryClient } from '@/lib/query-client'
+import { SessionProvider } from 'next-auth/react'
 
 export function Providers({ children }: PropsWithChildren) {
   const { locale } = useLocale()
   const localeMessages: Record<string, string> = messages[locale] as Record<string, string>
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <IntlProvider messages={localeMessages} locale={locale}>
-        <ConfigProvider theme={theme}>{children}</ConfigProvider>
-      </IntlProvider>
-      <ReactQueryDevtools />
-    </QueryClientProvider>
+    <SessionProvider>
+      <QueryClientProvider client={queryClient}>
+        <IntlProvider messages={localeMessages} locale={locale}>
+          <ConfigProvider theme={theme}>{children}</ConfigProvider>
+        </IntlProvider>
+        <ReactQueryDevtools />
+      </QueryClientProvider>
+    </SessionProvider>
   )
 }

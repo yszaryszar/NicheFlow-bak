@@ -8,5 +8,14 @@
   "nav.settings": "设置",
   "auth.login": "登录",
   "auth.register": "注册",
-  "auth.logout": "退出"
-} 
+  "auth.logout": "退出",
+  "auth.login.title": "欢迎使用 NicheFlow",
+  "auth.login.subtitle": "AI 驱动的垂直平台内容创作助手",
+  "auth.login.google": "使用 Google 账号登录",
+  "auth.login.github": "使用 GitHub 账号登录",
+  "auth.login.divider": "安全登录 · 高效创作",
+  "auth.login.terms": "登录即表示您同意我们的",
+  "auth.login.termsLink": "服务条款",
+  "auth.login.and": "和",
+  "auth.login.privacyLink": "隐私政策"
+}

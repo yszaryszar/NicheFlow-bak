@@ -1,49 +1,32 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { AuthState } from '@/types/store'
+import type { User } from '@/services/auth'
 
-interface AuthStore extends AuthState {
-  login: (token: string, user: AuthState['user']) => void
+interface AuthState {
+  user: User | null
+  token: string | null
+  isAuthenticated: boolean
+  setAuth: (user: User, token: string) => void
   logout: () => void
-  setLoading: (isLoading: boolean) => void
-  setError: (error: string | null) => void
 }
 
-const initialState: AuthState = {
-  user: null,
-  token: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
-}
-
-export const useAuthStore = create<AuthStore>()(
+export const useAuthStore = create<AuthState>()(
   persist(
     set => ({
-      ...initialState,
-
-      login: (token, user) =>
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      setAuth: (user: User, token: string) =>
         set({
-          token,
           user,
+          token,
           isAuthenticated: true,
-          error: null,
         }),
-
       logout: () =>
         set({
-          ...initialState,
-        }),
-
-      setLoading: isLoading =>
-        set({
-          isLoading,
-        }),
-
-      setError: error =>
-        set({
-          error,
-          isLoading: false,
+          user: null,
+          token: null,
+          isAuthenticated: false,
         }),
     }),
     {
