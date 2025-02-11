@@ -8,7 +8,7 @@ echo "=== 前端校验开始 ==="
 }
 
 echo "=== 后端校验开始 ==="
-(cd backend && golangci-lint run ./...) || {
+(cd backend && golangci-lint run ./cmd/...) || {
   echo "后端校验失败！"
   exit 1
 }

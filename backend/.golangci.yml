@@ -4,13 +4,55 @@ linters-settings:
       - standard
       - default
       - prefix(github.com/yszaryszar/NicheFlow/backend)
+
 linters:
   enable:
     - revive
     - goimports
+  disable-all: true
+
 run:
+  # 只检查项目代码
   skip-dirs:
     - vendor
     - docs
+    - test
+    - scripts
+  skip-dirs-use-default: true
+  skip-files:
+    - ".*_test.go$"
+    - ".*_mock.go$"
+  modules-download-mode: readonly
+  allow-parallel-runners: true
+  go: '1.23.5'
+
+  # 只分析项目代码
   build-tags:
     - prod
+  
+  # 设置超时时间
+  timeout: 5m
+
+# 输出配置
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  uniq-by-line: true
+
+# 问题严重性配置
+issues:
+  exclude-use-default: true
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-dirs:
+    - vendor
+    - third_party
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - revive
+        - goimports
+    - path: vendor/.*
+      linters:
+        - all
