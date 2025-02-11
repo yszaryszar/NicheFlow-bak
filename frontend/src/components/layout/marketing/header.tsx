@@ -1,3 +1,5 @@
+'use client'
+
 import { Button, Menu } from 'antd'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
