@@ -80,6 +80,15 @@ type CORSConfig struct {
 	MaxAge           int      `mapstructure:"max_age"`
 }
 
+type OAuthProviderConfig struct {
+	ClientID     string   `mapstructure:"client_id"`
+	ClientSecret string   `mapstructure:"client_secret"`
+	RedirectURI  string   `mapstructure:"redirect_uri"`
+	Scopes       []string `mapstructure:"scopes"`
+	TokenURL     string   `mapstructure:"token_url"`
+	UserInfoURL  string   `mapstructure:"user_info_url"`
+}
+
 type OAuthConfig struct {
 	BaseURL string `mapstructure:"base_url"`
 	Google  struct {

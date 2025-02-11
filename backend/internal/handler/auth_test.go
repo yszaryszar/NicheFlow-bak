@@ -30,7 +30,14 @@ func setupTestHandler(t *testing.T) (*AuthHandler, *gin.Engine) {
 	cfg := &config.Config{
 		OAuth: config.OAuthConfig{
 			BaseURL: "http://localhost:8080",
-			Google: config.OAuthProviderConfig{
+			Google: struct {
+				ClientID     string   `mapstructure:"client_id"`
+				ClientSecret string   `mapstructure:"client_secret"`
+				RedirectURI  string   `mapstructure:"redirect_uri"`
+				Scopes       []string `mapstructure:"scopes"`
+				TokenURL     string   `mapstructure:"token_url"`
+				UserInfoURL  string   `mapstructure:"user_info_url"`
+			}{
 				ClientID:     "test-google-client-id",
 				ClientSecret: "test-google-client-secret",
 				RedirectURI:  "http://localhost:8080/api/auth/callback/google",
@@ -38,7 +45,14 @@ func setupTestHandler(t *testing.T) (*AuthHandler, *gin.Engine) {
 				TokenURL:     tokenServer.URL,
 				UserInfoURL:  googleServer.URL,
 			},
-			GitHub: config.OAuthProviderConfig{
+			GitHub: struct {
+				ClientID     string   `mapstructure:"client_id"`
+				ClientSecret string   `mapstructure:"client_secret"`
+				RedirectURI  string   `mapstructure:"redirect_uri"`
+				Scopes       []string `mapstructure:"scopes"`
+				TokenURL     string   `mapstructure:"token_url"`
+				UserInfoURL  string   `mapstructure:"user_info_url"`
+			}{
 				ClientID:     "test-github-client-id",
 				ClientSecret: "test-github-client-secret",
 				RedirectURI:  "http://localhost:8080/api/auth/callback/github",
