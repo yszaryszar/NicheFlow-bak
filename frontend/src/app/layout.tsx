@@ -1,7 +1,6 @@
 'use client'
 
 import { Inter } from 'next/font/google'
-import { MainLayout } from '@/components/layout/MainLayout'
 import { Providers } from './providers'
 import '@/styles/globals.css'
 
@@ -11,9 +10,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh" className={inter.className}>
       <body>
-        <Providers>
-          <MainLayout>{children}</MainLayout>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
