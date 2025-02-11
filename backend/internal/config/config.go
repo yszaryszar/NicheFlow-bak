@@ -1,0 +1,145 @@
+package config
+
+import (
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
+)
+
+type Config struct {
+	App       AppConfig       `mapstructure:"app"`
+	Database  DatabaseConfig  `mapstructure:"database"`
+	Redis     RedisConfig     `mapstructure:"redis"`
+	JWT       JWTConfig       `mapstructure:"jwt"`
+	OpenAI    OpenAIConfig    `mapstructure:"openai"`
+	Anthropic AnthropicConfig `mapstructure:"anthropic"`
+	CORS      CORSConfig      `mapstructure:"cors"`
+}
+
+type AppConfig struct {
+	Name    string `mapstructure:"name"`
+	Version string `mapstructure:"version"`
+	Mode    string `mapstructure:"mode"`
+	Port    int    `mapstructure:"port"`
+}
+
+type DatabaseConfig struct {
+	Driver          string `mapstructure:"driver"`
+	Host            string `mapstructure:"host"`
+	Port            int    `mapstructure:"port"`
+	Name            string `mapstructure:"name"`
+	User            string `mapstructure:"user"`
+	Password        string `mapstructure:"password"`
+	MaxIdleConns    int    `mapstructure:"max_idle_conns"`
+	MaxOpenConns    int    `mapstructure:"max_open_conns"`
+	ConnMaxLifetime string `mapstructure:"conn_max_lifetime"`
+}
+
+type RedisConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
+}
+
+type JWTConfig struct {
+	Secret string `mapstructure:"secret"`
+	Expire string `mapstructure:"expire"`
+	Issuer string `mapstructure:"issuer"`
+}
+
+type OpenAIConfig struct {
+	APIKey       string  `mapstructure:"api_key"`
+	Organization string  `mapstructure:"organization"`
+	Model        string  `mapstructure:"model"`
+	MaxTokens    int     `mapstructure:"max_tokens"`
+	Temperature  float64 `mapstructure:"temperature"`
+}
+
+type AnthropicConfig struct {
+	APIKey      string  `mapstructure:"api_key"`
+	Model       string  `mapstructure:"model"`
+	MaxTokens   int     `mapstructure:"max_tokens"`
+	Temperature float64 `mapstructure:"temperature"`
+}
+
+type CORSConfig struct {
+	AllowedOrigins   []string `mapstructure:"allowed_origins"`
+	AllowedMethods   []string `mapstructure:"allowed_methods"`
+	AllowedHeaders   []string `mapstructure:"allowed_headers"`
+	AllowCredentials bool     `mapstructure:"allow_credentials"`
+	MaxAge           int      `mapstructure:"max_age"`
+}
+
+var cfg *Config
+
+// LoadConfig 加载配置
+func LoadConfig() (*Config, error) {
+	if cfg != nil {
+		return cfg, nil
+	}
+
+	// 加载 .env 文件
+	if err := loadEnv(); err != nil {
+		return nil, fmt.Errorf("加载 .env 文件失败: %w", err)
+	}
+
+	// 设置配置文件
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("configs")
+
+	// 读取配置文件
+	if err := viper.ReadInConfig(); err != nil {
+		return nil, fmt.Errorf("读取配置文件失败: %w", err)
+	}
+
+	// 绑定环境变量
+	bindEnvs(viper.GetViper(), "")
+
+	// 替换环境变量
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return nil, fmt.Errorf("解析配置文件失败: %w", err)
+	}
+
+	return cfg, nil
+}
+
+// loadEnv 加载环境变量文件
+func loadEnv() error {
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
+
+	// 加载 .env 文件
+	envFile := fmt.Sprintf(".env.%s", env)
+	if _, err := os.Stat(envFile); err == nil {
+		if err := godotenv.Load(envFile); err != nil {
+			return err
+		}
+	}
+
+	// 加载默认的 .env 文件
+	if _, err := os.Stat(".env"); err == nil {
+		if err := godotenv.Load(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// bindEnvs 递归绑定环境变量
+func bindEnvs(v *viper.Viper, prefix string) {
+	for _, key := range v.AllKeys() {
+		envKey := strings.ToUpper(strings.ReplaceAll(key, ".", "_"))
+		if prefix != "" {
+			envKey = prefix + "_" + envKey
+		}
+		_ = v.BindEnv(key, envKey)
+	}
+}
