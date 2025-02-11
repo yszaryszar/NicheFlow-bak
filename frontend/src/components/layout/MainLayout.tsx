@@ -5,12 +5,14 @@ import { PropsWithChildren } from 'react'
 import { MainHeader } from './MainHeader'
 import { MainSider } from './MainSider'
 import { MainFooter } from './MainFooter'
+import { GlobalLoading } from '../common/GlobalLoading'
 
 const { Content } = Layout
 
 export function MainLayout({ children }: PropsWithChildren) {
   return (
     <Layout className="min-h-screen">
+      <GlobalLoading />
       <MainHeader />
       <Layout>
         <MainSider />

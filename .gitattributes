@@ -1,0 +1,8 @@
+# 设置默认行为，以防人们没有设置 core.autocrlf
+* text=auto eol=lf
+
+# 明确声明应该被标准化的文本文件
+*.{js,jsx,ts,tsx,vue,json,css,scss,md,yml,yaml,html,htm,xml,txt,sh,conf} text eol=lf
+
+# 声明二进制文件，这些文件不应该被修改
+*.{png,jpg,jpeg,gif,ico,webp,woff,woff2,ttf,eot,otf,mp4,webm,wav,mp3,m4a,aac,ogg} binary 

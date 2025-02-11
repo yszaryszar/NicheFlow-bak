@@ -1,0 +1,8 @@
+[build]
+cmd = "go build -o ./bin/server ./cmd"
+bin = "bin/server"
+exclude_file = []
+exclude_dir = ["bin", "docs", "vendor", "frontend"]
+include_ext = ["go", "toml", "yaml"]
+delay = 1000
+stop_on_error = true

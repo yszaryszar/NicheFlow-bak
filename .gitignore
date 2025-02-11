@@ -23,6 +23,7 @@ dist
 *.test
 *.out
 go.work
+backend/bin
 
 # Misc
 .DS_Store

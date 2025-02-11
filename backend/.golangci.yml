@@ -1,0 +1,16 @@
+linters-settings:
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/yszaryszar/NicheFlow/backend)
+linters:
+  enable:
+    - revive
+    - goimports
+run:
+  skip-dirs:
+    - vendor
+    - docs
+  build-tags:
+    - prod

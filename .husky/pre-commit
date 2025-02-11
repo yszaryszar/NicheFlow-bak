@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "=== 前端校验开始 ==="
+(cd frontend && pnpm lint-staged) || {
+  echo "前端校验失败！"
+  exit 1
+}
+
+echo "=== 后端校验开始 ==="
+(cd backend && golangci-lint run ./...) || {
+  echo "后端校验失败！"
+  exit 1
+}

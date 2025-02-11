@@ -3,9 +3,10 @@
 ## 1. 项目概述
 
 - **项目名称:** 垂直平台爆款智造 (NicheFlow)
-- **定位:** AI 驱动的垂直平台内容创作助手
+- **定位:** AI 驱动的垂直平台内容创作助手（模仿 copy.ai）
 - **目标用户:** TikTok 博主、独立站卖家、短视频创作者等
 - **MVP 功能:** TikTok 爆款脚本生成器
+- **后续迭代** 亚马逊文案生成
 
 ## 2. 技术栈
 
@@ -36,26 +37,26 @@
 - 后端 YAML + 环境变量 + viper 配置库 + godotenv 加载环境变量
 
 ## 3. 系统架构
-
-### 前端架构
-
 ```text
-frontend/
-├── app/                # Next.js App Router
-├── components/         # React组件
-├── lib/               # 工具库
-├── state/             # 状态管理
-└── styles/            # 样式文件
-```
-
-### 后端架构
-
-```text
-backend/
-├── handler/           # API控制器
-├── service/           # 业务逻辑
-├── repository/        # 数据访问
-└── model/            # 数据模型
+nicheflow/
+├── backend/         # Go 后端服务
+│   ├── cmd/
+│   ├── internal/
+│   ├── pkg/
+│   ├── go.mod
+│   └── ...         
+├── frontend/        # Next.js 前端
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── ...          
+├── .husky/          # Git 钩子（全项目共享）
+├── docker/
+│   ├── backend.Dockerfile
+│   └── frontend.Dockerfile
+├── docker-compose.yml
+├── Makefile         # 常用命令统一入口
+└── README.md        # 统一文档
 ```
 
 ## 4. 开发规范

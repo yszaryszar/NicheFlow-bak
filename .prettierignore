@@ -1,0 +1,10 @@
+**/node_modules
+.next
+out
+dist
+*.md
+*.svg
+*.ico
+*.log
+yarn.lock
+package-lock.json
