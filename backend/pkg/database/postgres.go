@@ -2,6 +2,8 @@ package database
 
 import (
 	"fmt"
+	"log"
+	"sync"
 	"time"
 
 	"github.com/yszaryszar/NicheFlow/backend/internal/config"
@@ -10,7 +12,24 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var db *gorm.DB
+var (
+	db   *gorm.DB
+	once sync.Once
+)
+
+// InitDB 初始化数据库连接
+func InitDB(dsn string) error {
+	var err error
+	once.Do(func() {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err != nil {
+			log.Printf("数据库连接失败: %v", err)
+			return
+		}
+		fmt.Println("数据库连接成功")
+	})
+	return err
+}
 
 // NewPostgresDB 创建 PostgreSQL 数据库连接
 func NewPostgresDB(cfg *config.DatabaseConfig) (*gorm.DB, error) {
@@ -63,9 +82,14 @@ func NewPostgresDB(cfg *config.DatabaseConfig) (*gorm.DB, error) {
 	return db, nil
 }
 
-// GetDB 获取数据库连接
+// GetDB 获取数据库连接实例
 func GetDB() *gorm.DB {
 	return db
+}
+
+// SetDB 设置数据库连接实例（仅用于测试）
+func SetDB(instance *gorm.DB) {
+	db = instance
 }
 
 // Close 关闭数据库连接

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/yszaryszar/NicheFlow/backend/internal/model"
@@ -25,9 +26,15 @@ func NewAuthService() *AuthService {
 
 // CreateSession 创建会话
 func (s *AuthService) CreateSession(ctx context.Context, userID uint, expiresAt time.Time) (*model.Session, error) {
+	// 生成唯一标识符
+	sessionID := fmt.Sprintf("sess_%d", time.Now().UnixNano())
+	sessionToken := fmt.Sprintf("token_%d", time.Now().UnixNano())
+
 	session := &model.Session{
-		UserID:    userID,
-		ExpiresAt: expiresAt,
+		ID:           sessionID,
+		UserID:       userID,
+		ExpiresAt:    expiresAt,
+		SessionToken: sessionToken,
 	}
 
 	if err := s.db.Create(session).Error; err != nil {

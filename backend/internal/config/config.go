@@ -91,6 +91,8 @@ type OAuthProviderConfig struct {
 	ClientSecret string   `mapstructure:"client_secret"`
 	RedirectURI  string   `mapstructure:"redirect_uri"`
 	Scopes       []string `mapstructure:"scopes"`
+	TokenURL     string   `mapstructure:"token_url"`
+	UserInfoURL  string   `mapstructure:"user_info_url"`
 }
 
 var cfg *Config

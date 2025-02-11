@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -62,20 +63,24 @@ func (s *OAuthService) GetAuthURL(provider string) (string, error) {
 }
 
 // ExchangeCode 使用授权码交换令牌
-func (s *OAuthService) ExchangeCode(ctx context.Context, provider, code string) (map[string]interface{}, error) {
+func (s *OAuthService) ExchangeCode(ctx context.Context, provider string, code string) (map[string]interface{}, error) {
 	var tokenURL string
-	var clientID string
-	var clientSecret string
-	var redirectURI string
+	var clientID, clientSecret, redirectURI string
 
 	switch provider {
 	case "google":
 		tokenURL = "https://oauth2.googleapis.com/token"
+		if s.cfg.OAuth.Google.TokenURL != "" {
+			tokenURL = s.cfg.OAuth.Google.TokenURL
+		}
 		clientID = s.cfg.OAuth.Google.ClientID
 		clientSecret = s.cfg.OAuth.Google.ClientSecret
 		redirectURI = s.cfg.OAuth.Google.RedirectURI
 	case "github":
 		tokenURL = "https://github.com/login/oauth/access_token"
+		if s.cfg.OAuth.GitHub.TokenURL != "" {
+			tokenURL = s.cfg.OAuth.GitHub.TokenURL
+		}
 		clientID = s.cfg.OAuth.GitHub.ClientID
 		clientSecret = s.cfg.OAuth.GitHub.ClientSecret
 		redirectURI = s.cfg.OAuth.GitHub.RedirectURI
@@ -83,7 +88,7 @@ func (s *OAuthService) ExchangeCode(ctx context.Context, provider, code string) 
 		return nil, fmt.Errorf("不支持的认证提供商: %s", provider)
 	}
 
-	// 准备请求参数
+	// 准备请求数据
 	data := url.Values{}
 	data.Set("client_id", clientID)
 	data.Set("client_secret", clientSecret)
@@ -122,19 +127,48 @@ func (s *OAuthService) ExchangeCode(ctx context.Context, provider, code string) 
 		return nil, fmt.Errorf("获取令牌失败: %v", result["error"])
 	}
 
+	// 添加 sub 字段
+	if provider == "google" {
+		// 解析 ID 令牌获取 sub
+		idToken, ok := result["id_token"].(string)
+		if ok {
+			parts := strings.Split(idToken, ".")
+			if len(parts) == 3 {
+				payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+				if err == nil {
+					var claims map[string]interface{}
+					if err := json.Unmarshal(payload, &claims); err == nil {
+						if sub, ok := claims["sub"].(string); ok {
+							result["sub"] = sub
+						}
+					}
+				}
+			}
+		}
+	}
+
 	return result, nil
 }
 
 // GetUserInfo 获取用户信息
 func (s *OAuthService) GetUserInfo(ctx context.Context, provider string, token map[string]interface{}) (*model.User, error) {
 	var userInfoURL string
-	accessToken := token["access_token"].(string)
+	accessToken, ok := token["access_token"].(string)
+	if !ok {
+		return nil, fmt.Errorf("无效的访问令牌")
+	}
 
 	switch provider {
 	case "google":
 		userInfoURL = "https://www.googleapis.com/oauth2/v3/userinfo"
+		if s.cfg.OAuth.Google.UserInfoURL != "" {
+			userInfoURL = s.cfg.OAuth.Google.UserInfoURL
+		}
 	case "github":
 		userInfoURL = "https://api.github.com/user"
+		if s.cfg.OAuth.GitHub.UserInfoURL != "" {
+			userInfoURL = s.cfg.OAuth.GitHub.UserInfoURL
+		}
 	default:
 		return nil, fmt.Errorf("不支持的认证提供商: %s", provider)
 	}
@@ -155,6 +189,10 @@ func (s *OAuthService) GetUserInfo(ctx context.Context, provider string, token m
 		return nil, fmt.Errorf("请求失败: %w", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("获取用户信息失败: %s", resp.Status)
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

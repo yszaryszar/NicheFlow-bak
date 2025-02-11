@@ -2,6 +2,8 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -9,6 +11,7 @@ import (
 	"github.com/yszaryszar/NicheFlow/backend/internal/config"
 	"github.com/yszaryszar/NicheFlow/backend/internal/model"
 	"github.com/yszaryszar/NicheFlow/backend/internal/service"
+	"gorm.io/gorm"
 )
 
 // ProviderResponse OAuth 提供商响应
@@ -98,6 +101,12 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 		return
 	}
 
+	// 验证提供商
+	if provider != "google" && provider != "github" {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "不支持的认证提供商"})
+		return
+	}
+
 	// 使用授权码交换令牌
 	token, err := h.oauthService.ExchangeCode(c.Request.Context(), provider, code)
 	if err != nil {
@@ -115,13 +124,16 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	// 查找或创建用户
 	existingUser, err := h.authService.GetUserByEmail(c.Request.Context(), user.Email)
 	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "查询用户失败: " + err.Error()})
+			return
+		}
 		// 创建新用户
 		if err := h.authService.CreateUser(c.Request.Context(), user); err != nil {
 			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "创建用户失败: " + err.Error()})
 			return
 		}
-	} else {
-		user = existingUser
+		existingUser = user
 	}
 
 	// 创建或更新 OAuth 账号
@@ -132,12 +144,23 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	}
 
 	account := &model.Account{
-		UserID:          user.ID,
+		ID:              fmt.Sprintf("%s_%d", provider, time.Now().UnixNano()),
+		UserID:          existingUser.ID,
 		Type:            "oauth",
 		Provider:        provider,
-		ProviderID:      token["sub"].(string),
 		ProviderAccount: string(providerAccount),
 		AccessToken:     token["access_token"].(string),
+	}
+
+	// 设置 ProviderID
+	if provider == "github" {
+		if id, ok := token["id"].(float64); ok {
+			account.ProviderID = fmt.Sprintf("%d", int64(id))
+		}
+	} else {
+		if sub, ok := token["sub"].(string); ok {
+			account.ProviderID = sub
+		}
 	}
 
 	if refreshToken, ok := token["refresh_token"]; ok {
@@ -155,7 +178,7 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	}
 
 	// 创建会话
-	session, err := h.authService.CreateSession(c.Request.Context(), user.ID, time.Now().Add(24*time.Hour))
+	session, err := h.authService.CreateSession(c.Request.Context(), existingUser.ID, time.Now().Add(24*time.Hour))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "创建会话失败"})
 		return
@@ -163,7 +186,7 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 
 	c.JSON(http.StatusOK, AuthResponse{
 		Session: session,
-		User:    user,
+		User:    existingUser,
 	})
 }
 
@@ -185,13 +208,20 @@ func (h *AuthHandler) HandleSignOut(c *gin.Context) {
 		return
 	}
 
-	sessionModel := session.(*model.Session)
+	// 类型断言
+	sessionModel, ok := session.(*model.Session)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "会话类型错误"})
+		return
+	}
+
+	// 删除会话
 	if err := h.authService.DeleteSession(c.Request.Context(), sessionModel.SessionToken); err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "删除会话失败"})
 		return
 	}
 
-	c.JSON(http.StatusOK, MessageResponse{Message: "登出成功"})
+	c.JSON(http.StatusOK, MessageResponse{Message: "退出成功"})
 }
 
 // HandleSession godoc
