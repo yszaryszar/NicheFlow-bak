@@ -1,7 +1,11 @@
-import type { NextConfig } from "next";
+import { withNextIntl } from 'next-intl/plugin'
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+const config = {
+  // 启用 App Router 国际化
+  i18n: {
+    locales: ['zh', 'en'],
+    defaultLocale: 'zh',
+  },
+}
 
-export default nextConfig;
+export default withNextIntl()(config)

@@ -1,0 +1,18 @@
+{
+  "app": {
+    "name": "NicheFlow",
+    "description": "AI-Driven Content Creation Assistant for Vertical Platforms"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "scripts": "Script Generator",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  }
+} 

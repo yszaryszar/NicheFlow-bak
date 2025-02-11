@@ -1,0 +1,18 @@
+{
+  "app": {
+    "name": "NicheFlow",
+    "description": "AI驱动的垂直平台内容创作助手"
+  },
+  "nav": {
+    "home": "首页",
+    "dashboard": "控制台",
+    "scripts": "脚本生成",
+    "analytics": "数据分析",
+    "settings": "设置"
+  },
+  "auth": {
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出"
+  }
+} 
