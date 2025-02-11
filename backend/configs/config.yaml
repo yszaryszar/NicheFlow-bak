@@ -1,29 +1,34 @@
 app:
+  env: ${APP_ENV}
   name: NicheFlow
   version: 0.1.0
-  mode: development
-  port: 8080
+  mode: ${APP_MODE}
+  port: ${APP_PORT}
   
 database:
   driver: postgres
-  host: localhost
-  port: 5432
-  name: nicheflow
-  user: postgres
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  name: ${DB_NAME}
+  user: ${DB_USER}
   password: ${DB_PASSWORD}
+  ssl_mode: ${DB_SSL_MODE}
+  ssl_tunnel: ${DB_SSL_TUNNEL}
   max_idle_conns: 10
   max_open_conns: 100
   conn_max_lifetime: 1h
 
 redis:
-  host: localhost
-  port: 6379
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT}
   password: ${REDIS_PASSWORD}
-  db: 0
+  db: ${REDIS_DB}
+  ssl_tunnel: ${REDIS_SSL_TUNNEL}
+  tls_enable: ${REDIS_TLS_ENABLE}
 
 jwt:
   secret: ${JWT_SECRET}
-  expire: 24h
+  expire: ${JWT_EXPIRE}
   issuer: nicheflow
 
 openai:
@@ -41,7 +46,7 @@ anthropic:
 
 cors:
   allowed_origins:
-    - http://localhost:3000
+    - ${CORS_ALLOWED_ORIGINS}
   allowed_methods:
     - GET
     - POST
@@ -52,4 +57,22 @@ cors:
     - Authorization
     - Content-Type
   allow_credentials: true
-  max_age: 300 
+  max_age: 300
+
+oauth:
+  base_url: ${APP_BASE_URL}
+  google:
+    client_id: ${GOOGLE_CLIENT_ID}
+    client_secret: ${GOOGLE_CLIENT_SECRET}
+    redirect_uri: ${APP_BASE_URL}/api/auth/callback/google
+    scopes:
+      - openid
+      - profile
+      - email
+  github:
+    client_id: ${GITHUB_CLIENT_ID}
+    client_secret: ${GITHUB_CLIENT_SECRET}
+    redirect_uri: ${APP_BASE_URL}/api/auth/callback/github
+    scopes:
+      - user
+      - user:email 

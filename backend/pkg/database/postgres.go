@@ -18,13 +18,19 @@ func NewPostgresDB(cfg *config.DatabaseConfig) (*gorm.DB, error) {
 		return db, nil
 	}
 
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+	// 构建连接字符串
+	dsn := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s",
 		cfg.Host,
 		cfg.Port,
 		cfg.User,
-		cfg.Password,
 		cfg.Name,
+		cfg.Password,
 	)
+
+	// 添加 SSL 配置
+	if cfg.SSLMode != "" {
+		dsn += fmt.Sprintf(" sslmode=%s", cfg.SSLMode)
+	}
 
 	// 解析连接最大生命周期
 	connMaxLifetime, err := time.ParseDuration(cfg.ConnMaxLifetime)

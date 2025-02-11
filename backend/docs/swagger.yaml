@@ -1,0 +1,247 @@
+basePath: /api
+definitions:
+  handler.AuthResponse:
+    properties:
+      session:
+        $ref: '#/definitions/model.Session'
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  handler.ErrorResponse:
+    properties:
+      error:
+        example: 操作失败
+        type: string
+    type: object
+  handler.MessageResponse:
+    properties:
+      message:
+        example: 操作成功
+        type: string
+    type: object
+  handler.ProviderResponse:
+    properties:
+      id:
+        example: google
+        type: string
+      name:
+        example: Google
+        type: string
+      scopes:
+        example:
+        - profile
+        - email
+        items:
+          type: string
+        type: array
+      type:
+        example: oauth
+        type: string
+    type: object
+  model.Session:
+    properties:
+      created_at:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      updated_at:
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/model.User'
+        description: 关联用户
+      user_id:
+        type: integer
+    type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      email_verified:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      last_reset_time:
+        description: 上次重置时间
+        type: string
+      monthly_count:
+        description: 当月已使用
+        type: integer
+      monthly_limit:
+        description: 每月限制
+        type: integer
+      name:
+        type: string
+      role:
+        description: 用户角色和状态
+        type: string
+      status:
+        type: string
+      subscription_end:
+        type: string
+      subscription_status:
+        type: string
+      updated_at:
+        type: string
+      usage_count:
+        description: 已使用次数
+        type: integer
+      usage_limit:
+        description: 使用限制
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@nicheflow.com
+    name: API Support
+    url: http://www.nicheflow.com/support
+  description: NicheFlow 后端 API 文档
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: NicheFlow API
+  version: "1.0"
+paths:
+  /auth/callback/{provider}:
+    get:
+      consumes:
+      - application/json
+      description: 处理 OAuth 认证回调，创建或更新用户会话
+      parameters:
+      - description: 认证提供商
+        enum:
+        - google
+        - github
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: 授权码
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: 处理 OAuth 回调
+      tags:
+      - auth
+  /auth/providers:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有可用的 OAuth 认证提供商
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.ProviderResponse'
+            type: array
+      summary: 获取认证提供商列表
+      tags:
+      - auth
+  /auth/session:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的会话信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: 获取会话信息
+      tags:
+      - auth
+  /auth/signout:
+    post:
+      consumes:
+      - application/json
+      description: 删除用户会话，完成登出操作
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: 用户登出
+      tags:
+      - auth
+  /auth/verify-email:
+    get:
+      consumes:
+      - application/json
+      description: 验证用户邮箱地址
+      parameters:
+      - description: 验证令牌
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: 验证邮箱
+      tags:
+      - auth
+schemes:
+- http
+- https
+securityDefinitions:
+  Bearer:
+    description: 请在此输入 Bearer {token}
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

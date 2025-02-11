@@ -17,9 +17,11 @@ type Config struct {
 	OpenAI    OpenAIConfig    `mapstructure:"openai"`
 	Anthropic AnthropicConfig `mapstructure:"anthropic"`
 	CORS      CORSConfig      `mapstructure:"cors"`
+	OAuth     OAuthConfig     `mapstructure:"oauth"`
 }
 
 type AppConfig struct {
+	Env     string `mapstructure:"env"`
 	Name    string `mapstructure:"name"`
 	Version string `mapstructure:"version"`
 	Mode    string `mapstructure:"mode"`
@@ -33,16 +35,20 @@ type DatabaseConfig struct {
 	Name            string `mapstructure:"name"`
 	User            string `mapstructure:"user"`
 	Password        string `mapstructure:"password"`
+	SSLMode         string `mapstructure:"ssl_mode"`
+	SSLTunnel       bool   `mapstructure:"ssl_tunnel"`
 	MaxIdleConns    int    `mapstructure:"max_idle_conns"`
 	MaxOpenConns    int    `mapstructure:"max_open_conns"`
 	ConnMaxLifetime string `mapstructure:"conn_max_lifetime"`
 }
 
 type RedisConfig struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	Password string `mapstructure:"password"`
-	DB       int    `mapstructure:"db"`
+	Host      string `mapstructure:"host"`
+	Port      int    `mapstructure:"port"`
+	Password  string `mapstructure:"password"`
+	DB        int    `mapstructure:"db"`
+	SSLTunnel bool   `mapstructure:"ssl_tunnel"`
+	TLSEnable bool   `mapstructure:"tls_enable"`
 }
 
 type JWTConfig struct {
@@ -74,6 +80,19 @@ type CORSConfig struct {
 	MaxAge           int      `mapstructure:"max_age"`
 }
 
+type OAuthConfig struct {
+	Google  OAuthProviderConfig `mapstructure:"google"`
+	GitHub  OAuthProviderConfig `mapstructure:"github"`
+	BaseURL string              `mapstructure:"base_url"`
+}
+
+type OAuthProviderConfig struct {
+	ClientID     string   `mapstructure:"client_id"`
+	ClientSecret string   `mapstructure:"client_secret"`
+	RedirectURI  string   `mapstructure:"redirect_uri"`
+	Scopes       []string `mapstructure:"scopes"`
+}
+
 var cfg *Config
 
 // LoadConfig 加载配置
@@ -92,15 +111,29 @@ func LoadConfig() (*Config, error) {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("configs")
 
+	// 启用环境变量替换
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix("")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AllowEmptyEnv(true)
+
 	// 读取配置文件
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("读取配置文件失败: %w", err)
 	}
 
-	// 绑定环境变量
-	bindEnvs(viper.GetViper(), "")
+	// 替换配置文件中的环境变量
+	for _, key := range viper.AllKeys() {
+		val := viper.GetString(key)
+		if strings.HasPrefix(val, "${") && strings.HasSuffix(val, "}") {
+			envKey := strings.TrimSuffix(strings.TrimPrefix(val, "${"), "}")
+			if envVal := os.Getenv(envKey); envVal != "" {
+				viper.Set(key, envVal)
+			}
+		}
+	}
 
-	// 替换环境变量
+	// 解析配置到结构体
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("解析配置文件失败: %w", err)
 	}
@@ -115,18 +148,18 @@ func loadEnv() error {
 		env = "development"
 	}
 
-	// 加载 .env 文件
+	// 加载环境特定的 .env 文件
 	envFile := fmt.Sprintf(".env.%s", env)
 	if _, err := os.Stat(envFile); err == nil {
 		if err := godotenv.Load(envFile); err != nil {
-			return err
+			return fmt.Errorf("加载 %s 失败: %w", envFile, err)
 		}
 	}
 
-	// 加载默认的 .env 文件
+	// 加载默认的 .env 文件（如果存在）
 	if _, err := os.Stat(".env"); err == nil {
 		if err := godotenv.Load(); err != nil {
-			return err
+			return fmt.Errorf("加载 .env 失败: %w", err)
 		}
 	}
 
