@@ -3,17 +3,16 @@
 import { ConfigProvider } from 'antd'
 import { theme } from '@/styles/theme'
 import { PropsWithChildren } from 'react'
-import { NextIntlClientProvider } from 'next-intl'
+import { useLocale } from '@/hooks/useLocale'
+import { messages } from '@/i18n/config'
+import { IntlProvider } from 'react-intl'
 
-interface ProvidersProps extends PropsWithChildren {
-  locale: string
-  messages: Record<string, any>
-}
+export function Providers({ children }: PropsWithChildren) {
+  const { locale } = useLocale()
 
-export function Providers({ children, locale, messages }: ProvidersProps) {
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <IntlProvider messages={messages[locale]} locale={locale}>
       <ConfigProvider theme={theme}>{children}</ConfigProvider>
-    </NextIntlClientProvider>
+    </IntlProvider>
   )
 }

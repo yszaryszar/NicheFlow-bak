@@ -11,8 +11,9 @@
 
 ### 前端
 
-- Next.js 15 + React 18 + TypeScript
-- Zustand (状态管理)
+- Next.js 15 + Turbopack + React 18 + TypeScript
+- Zustand (客户端状态管理)
+- TanStack Query (服务端状态管理)
 - Ant Design + Tailwind CSS
 - next-i18next (国际化)
 
