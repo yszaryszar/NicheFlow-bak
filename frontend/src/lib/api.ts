@@ -9,9 +9,9 @@ const api = axios.create({
 // 请求拦截器
 api.interceptors.request.use(
   config => {
-    const token = useAuthStore.getState().token
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    const session = useAuthStore.getState().session
+    if (session?.accessToken) {
+      config.headers.Authorization = `Bearer ${session.accessToken}`
     }
     return config
   },

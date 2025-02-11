@@ -2,10 +2,18 @@ import { create } from 'zustand'
 import { Session } from 'next-auth'
 
 interface User {
-  id: string
-  name?: string
-  email?: string
-  image?: string
+  id: number
+  email: string
+  name: string
+  image: string
+  provider: string
+  role: string
+  status: string
+  subscription_status: string
+  usage_limit: number
+  usage_count: number
+  monthly_limit: number
+  monthly_count: number
 }
 
 interface AuthStore {

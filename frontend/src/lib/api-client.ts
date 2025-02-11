@@ -21,9 +21,9 @@ const apiClient = axios.create({
 // 请求拦截器
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = useAuthStore.getState().token
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    const session = useAuthStore.getState().session
+    if (session?.accessToken) {
+      config.headers.Authorization = `Bearer ${session.accessToken}`
     }
     return config
   },

@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/auth'
 export default function CallbackPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const setAuth = useAuthStore(state => state.setAuth)
+  const login = useAuthStore(state => state.login)
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -26,7 +26,7 @@ export default function CallbackPage() {
         const res = await authService.handleCallback(provider, code)
         if (res.data) {
           const { user, access_token } = res.data
-          setAuth(user, access_token)
+          login(access_token, user)
           message.success('登录成功')
           router.push('/dashboard')
         }
@@ -39,7 +39,7 @@ export default function CallbackPage() {
     }
 
     handleCallback()
-  }, [router, searchParams, setAuth])
+  }, [router, searchParams, login])
 
   return (
     <div className="min-h-screen flex items-center justify-center">

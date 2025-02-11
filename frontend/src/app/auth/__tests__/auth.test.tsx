@@ -164,7 +164,7 @@ describe('认证流程测试', () => {
 
   describe('认证状态管理', () => {
     it('应该正确设置和清除认证状态', () => {
-      const { setAuth, logout } = useAuthStore.getState()
+      const { login, logout } = useAuthStore.getState()
 
       const mockUser: User = {
         id: 1,
@@ -182,15 +182,13 @@ describe('认证流程测试', () => {
       }
       const mockToken = 'valid_token'
 
-      setAuth(mockUser, mockToken)
-      expect(useAuthStore.getState().user).toEqual(mockUser)
-      expect(useAuthStore.getState().token).toBe(mockToken)
-      expect(useAuthStore.getState().isAuthenticated).toBe(true)
+      login(mockToken, mockUser)
+      expect(useAuthStore.getState().session?.user).toEqual(mockUser)
+      expect(useAuthStore.getState().session?.accessToken).toBe(mockToken)
+      expect(useAuthStore.getState().session).not.toBeNull()
 
       logout()
-      expect(useAuthStore.getState().user).toBeNull()
-      expect(useAuthStore.getState().token).toBeNull()
-      expect(useAuthStore.getState().isAuthenticated).toBe(false)
+      expect(useAuthStore.getState().session).toBeNull()
     })
   })
 })
