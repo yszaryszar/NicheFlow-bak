@@ -1,13 +1,17 @@
 import type { NextConfig } from 'next'
 
 const config: NextConfig = {
-  env: {
-    APP_ENV: process.env.APP_ENV || 'development',
+  reactStrictMode: true,
+  // 配置图片域名白名单
+  images: {
+    domains: ['avatars.githubusercontent.com', 'lh3.googleusercontent.com'],
   },
-  // 禁用 i18n 路由
-  i18n: null,
   // 启用实验性功能
   experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:3000'],
+      bodySizeLimit: '2mb',
+    },
     turbo: {
       rules: {
         '*.svg': ['@svgr/webpack'],
@@ -23,6 +27,12 @@ const config: NextConfig = {
     })
     return config
   },
+  // 环境变量
+  env: {
+    APP_ENV: process.env.APP_ENV || 'development',
+  },
+  // 禁用 i18n 路由
+  i18n: null,
 }
 
 export default config
