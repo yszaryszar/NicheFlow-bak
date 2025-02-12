@@ -1,7 +1,7 @@
 'use client'
 
 import { ClerkProvider } from '@clerk/nextjs'
-import { zhCN, enUS } from '@clerk/localizations'
+import { zhCN, enUS, zhTW, jaJP, frFR, deDE, itIT, esES, ptBR, nlNL } from '@clerk/localizations'
 import { ReactNode, useEffect, useState } from 'react'
 import { dark } from '@clerk/themes'
 
@@ -11,89 +11,97 @@ interface AuthProviderProps {
 
 // Clerk 主题配置
 export const clerkAppearance = {
-  layout: {
-    helpPageUrl: '/help',
-    privacyPageUrl: '/privacy',
-    termsPageUrl: '/terms',
-    shimmer: true,
-    socialButtonsPlacement: 'bottom' as const,
-    socialButtonsVariant: 'iconButton' as const,
-  },
   variables: {
     colorPrimary: '#10b981',
-    colorText: '#000000',
-    colorBackground: '#ffffff',
     colorDanger: '#ef4444',
     colorSuccess: '#22c55e',
-    borderRadius: '0.5rem',
-    fontFamily: 'var(--font-inter)',
-    fontSize: '16px',
   },
-  elements: {
-    card: 'shadow-xl rounded-xl border border-gray-100',
-    headerTitle: 'text-xl font-semibold',
-    headerSubtitle: 'text-gray-500',
-    socialButtons: 'gap-2',
-    formButtonPrimary: '!bg-emerald-500 hover:!bg-emerald-600 !text-white rounded-lg px-4 py-2',
-    footerActionLink: 'text-emerald-600 hover:text-emerald-700',
-    modalBackdrop: 'backdrop-blur-sm bg-black/50',
-    modalContent: 'shadow-xl rounded-xl border-gray-100 max-w-md mx-auto',
-    form: 'space-y-4',
-    formField: 'space-y-1',
-    formFieldLabel: 'text-sm font-medium text-gray-700',
-    formFieldInput:
-      'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500',
-    formFieldError: 'text-sm text-red-500',
-    dividerLine: 'bg-gray-200',
-    dividerText: 'text-gray-500 bg-white px-2',
-    navbar: 'hidden',
-    navbarButtons: 'hidden',
-  },
-  baseTheme: dark,
 }
 
-// 语言配置
-export const supportedLanguages = {
-  'zh-CN': '简体中文',
-  'zh-TW': '繁體中文',
-  'en-US': 'English',
-  'ja-JP': '日本語',
-  'fr-FR': 'Français',
-  'de-DE': 'Deutsch',
-  'it-IT': 'Italiano',
-  'es-ES': 'Español',
-  'pt-BR': 'Português',
-  'nl-NL': 'Nederlands',
+// 语言映射
+const localizationMap = {
+  'zh-CN': zhCN,
+  'zh-TW': zhTW,
+  'en-US': enUS,
+  'ja-JP': jaJP,
+  'fr-FR': frFR,
+  'de-DE': deDE,
+  'it-IT': itIT,
+  'es-ES': esES,
+  'pt-BR': ptBR,
+  'nl-NL': nlNL,
 } as const
 
-// 获取浏览器语言并匹配支持的语言
-export function getBrowserLanguage(): string {
-  const browserLang = navigator.language.toLowerCase()
+// 获取用户语言设置
+const getUserLocale = () => {
+  if (typeof window === 'undefined') return zhCN
 
-  // 检查完整匹配
-  if (browserLang in supportedLanguages) {
-    return browserLang
+  const userLang = navigator.language
+  const langCode = userLang.split('-')[0].toLowerCase()
+
+  // 完整匹配
+  if (userLang in localizationMap) {
+    return localizationMap[userLang as keyof typeof localizationMap]
   }
 
-  // 检查语言代码匹配（例如 'zh' 匹配 'zh-CN'）
-  const langCode = browserLang.split('-')[0]
-  const match = Object.keys(supportedLanguages).find(key => key.startsWith(langCode))
-
-  return match || 'en-US'
+  // 语言代码匹配
+  switch (langCode) {
+    case 'zh':
+      return zhCN
+    case 'ja':
+      return jaJP
+    case 'fr':
+      return frFR
+    case 'de':
+      return deDE
+    case 'it':
+      return itIT
+    case 'es':
+      return esES
+    case 'pt':
+      return ptBR
+    case 'nl':
+      return nlNL
+    default:
+      return enUS
+  }
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [localization, setLocalization] = useState(enUS)
+  const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
-    const userLanguage = navigator.language.toLowerCase()
-    setLocalization(userLanguage.startsWith('zh') ? zhCN : enUS)
+    // 检查当前主题
+    const checkTheme = () => {
+      const html = document.documentElement
+      const isDarkMode = html.classList.contains('dark')
+      setIsDark(isDarkMode)
+    }
+
+    // 创建观察器监听 HTML 类名变化
+    const observer = new MutationObserver(checkTheme)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    })
+
+    // 初始检查
+    checkTheme()
+
+    // 设置语言
+    setLocalization(getUserLocale())
+
+    return () => observer.disconnect()
   }, [])
 
   return (
     <ClerkProvider
       localization={localization}
-      appearance={clerkAppearance}
+      appearance={{
+        ...clerkAppearance,
+        baseTheme: isDark ? dark : undefined,
+      }}
       afterSignInUrl="/"
       afterSignUpUrl="/"
       signInUrl="/"
