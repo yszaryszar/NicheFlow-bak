@@ -204,15 +204,51 @@ ContentGeneration/
 ### 3.2 用户系统
 ```
 UserSystem/
-├── 认证中心
-│   ├── 账号认证
-│   └── OAuth 集成
+├── 认证中心 (Clerk)
+│   ├── 社交认证
+│   │   ├── Google
+│   │   └── GitHub
+│   ├── 邮箱认证
+│   └── 多语言支持
 ├── 权限管理
-│   ├── RBAC 模型
-│   └── 资源控制
+│   ├── 路由保护
+│   └── API 保护
 └── 用户管理
     ├── 个人信息
     └── 订阅管理
+```
+
+### 3.2.1 认证流程
+1. 用户访问
+   - 检测用户语言
+   - 自动切换界面语言
+2. 认证方式
+   - 社交登录（Google、GitHub）
+   - 邮箱密码
+3. 路由保护
+   - 公开路由：首页、营销页面
+   - 受保护路由：仪表盘、设置等
+   - API 路由保护
+
+### 3.2.2 技术实现
+```typescript
+// 路由保护
+export const config = {
+  matcher: [
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/(api|trpc)(.*)',
+  ],
+}
+
+// 用户状态管理
+export function useAuth() {
+  const { isLoaded, userId, isSignedIn } = useClerkAuth()
+  return {
+    user: userId,
+    isAuthenticated: isSignedIn,
+    isLoading: !isLoaded,
+  }
+}
 ```
 
 ## 4. 技术实现
