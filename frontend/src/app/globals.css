@@ -10,42 +10,42 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 199 89% 48%;
+    --primary: 160 84% 39%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 291 91% 58%;
+    --accent: 151 83% 51%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 199 89% 48%;
+    --ring: 160 84% 39%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 168 75% 9%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 162 85% 15%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 162 85% 15%;
     --popover-foreground: 210 40% 98%;
-    --primary: 199 89% 48%;
+    --primary: 160 84% 39%;
     --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 162 85% 15%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 162 85% 15%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 291 91% 58%;
+    --accent: 160 84% 39%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 199 89% 48%;
+    --border: 162 85% 15%;
+    --input: 162 85% 15%;
+    --ring: 160 84% 39%;
   }
 }
 
@@ -77,13 +77,45 @@
   @apply bg-primary-100 text-primary-900;
 }
 
+/* 覆盖 Ant Design 默认链接样式 */
+.css-dev-only-do-not-override-490rne a {
+  color: #6b7280 !important;
+  text-decoration: none !important;
+  background-color: transparent !important;
+  outline: none !important;
+  cursor: pointer !important;
+  transition: color 0.3s !important;
+}
+
+.css-dev-only-do-not-override-490rne a:hover {
+  color: #059669 !important;
+}
+
+/* 通用覆盖，以防类名变化 */
+:where(.css-dev-only-do-not-override-*) a {
+  color: #6b7280 !important;
+  text-decoration: none !important;
+  background-color: transparent !important;
+  outline: none !important;
+  cursor: pointer !important;
+  transition: color 0.3s !important;
+}
+
+:where(.css-dev-only-do-not-override-*) a:hover {
+  color: #059669 !important;
+}
+
 /* 自定义链接样式 */
 @layer components {
   .link {
-    @apply text-primary-600 hover:text-primary-700 transition-colors duration-200;
+    @apply !text-emerald-600 hover:!text-emerald-700 transition-colors duration-200;
   }
 
   .link-underline {
-    @apply link border-b border-primary-600 hover:border-primary-700;
+    @apply link !border-b !border-emerald-600 hover:!border-emerald-700;
   }
+}
+
+a {
+  @apply text-gray-500 hover:text-emerald-600 transition-colors duration-200;
 }

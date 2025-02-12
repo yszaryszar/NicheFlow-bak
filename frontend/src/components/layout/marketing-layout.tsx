@@ -36,15 +36,17 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
   return (
     <Layout className="min-h-screen bg-white">
       {/* 顶部导航 */}
-      <Header className="fixed z-50 w-full bg-white/80 backdrop-blur-sm border-b border-gray-200">
+      <Header className="!fixed !z-50 !w-full !bg-white/80 !backdrop-blur-md !border-b !border-gray-100 !p-0">
         <div className="flex items-center justify-between h-16 px-4 mx-auto max-w-7xl">
-          <Logo />
-          <div className="hidden md:flex items-center space-x-8">
-            <NavMenu items={marketingNavItems} />
+          <div className="flex items-center">
+            <Logo className="text-gray-900" />
+            <div className="hidden md:flex items-center ml-8">
+              <NavMenu items={marketingNavItems} theme="light" />
+            </div>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             <ThemeSwitch />
-            <UserMenu />
+            <UserMenu theme="light" />
           </div>
         </div>
       </Header>
@@ -67,13 +69,13 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
             <div>
               <h3 className="font-semibold mb-4">产品</h3>
               <div className="space-y-3">
-                <Link href="/#features" className="block text-gray-500 hover:text-gray-900">
+                <Link href="/#features" className="block text-gray-500 hover:text-emerald-600">
                   功能介绍
                 </Link>
-                <Link href="/pricing" className="block text-gray-500 hover:text-gray-900">
+                <Link href="/pricing" className="block text-gray-500 hover:text-emerald-600">
                   定价方案
                 </Link>
-                <Link href="/docs" className="block text-gray-500 hover:text-gray-900">
+                <Link href="/docs" className="block text-gray-500 hover:text-emerald-600">
                   使用教程
                 </Link>
               </div>
@@ -81,13 +83,13 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
             <div>
               <h3 className="font-semibold mb-4">资源</h3>
               <div className="space-y-3">
-                <Link href="/help" className="block text-gray-500 hover:text-gray-900">
+                <Link href="/help" className="block text-gray-500 hover:text-emerald-600">
                   帮助中心
                 </Link>
-                <Link href="/api" className="block text-gray-500 hover:text-gray-900">
+                <Link href="/api" className="block text-gray-500 hover:text-emerald-600">
                   开发文档
                 </Link>
-                <Link href="/changelog" className="block text-gray-500 hover:text-gray-900">
+                <Link href="/changelog" className="block text-gray-500 hover:text-emerald-600">
                   更新日志
                 </Link>
               </div>
@@ -95,13 +97,13 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
             <div>
               <h3 className="font-semibold mb-4">关于</h3>
               <div className="space-y-3">
-                <Link href="/about" className="block text-gray-500 hover:text-gray-900">
+                <Link href="/about" className="block text-gray-500 hover:text-emerald-600">
                   关于我们
                 </Link>
-                <Link href="/contact" className="block text-gray-500 hover:text-gray-900">
+                <Link href="/contact" className="block text-gray-500 hover:text-emerald-600">
                   联系我们
                 </Link>
-                <Link href="/terms" className="block text-gray-500 hover:text-gray-900">
+                <Link href="/terms" className="block text-gray-500 hover:text-emerald-600">
                   使用条款
                 </Link>
               </div>

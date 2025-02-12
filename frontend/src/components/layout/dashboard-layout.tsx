@@ -63,7 +63,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sider
         theme="light"
         width={240}
-        className="fixed left-0 top-0 bottom-0 border-r border-gray-200"
+        className="!fixed !left-0 !top-0 !bottom-0 !border-r !border-gray-100 !bg-white/80 !backdrop-blur-md"
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
@@ -77,7 +77,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             selectedKeys={[pathname]}
             items={sidebarItems}
             onClick={({ key }) => router.push(key)}
-            className="flex-1 border-none"
+            className="!flex-1 !border-none !bg-transparent"
           />
         </div>
       </Sider>
@@ -85,15 +85,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* 主要内容区域 */}
       <Layout className="ml-60">
         {/* 顶部栏 */}
-        <Header className="bg-white border-b border-gray-200 px-6">
+        <Header className="!bg-white/80 !backdrop-blur-md !border-b !border-gray-100 !px-6 !p-0">
           <div className="flex items-center justify-end h-16 space-x-4">
             <ThemeSwitch />
-            <UserMenu
-              user={{
-                name: '演示用户',
-                email: 'demo@example.com',
-              }}
-            />
+            <UserMenu />
           </div>
         </Header>
 

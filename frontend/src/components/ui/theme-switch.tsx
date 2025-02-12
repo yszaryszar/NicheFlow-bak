@@ -28,9 +28,15 @@ export function ThemeSwitch() {
   return (
     <Button
       type="text"
-      icon={isDark ? <BsMoon className="text-lg" /> : <BsSun className="text-lg" />}
+      icon={
+        isDark ? (
+          <BsMoon className="text-lg text-gray-300 hover:text-white" />
+        ) : (
+          <BsSun className="text-lg text-gray-300 hover:text-white" />
+        )
+      }
       onClick={toggleTheme}
-      className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+      className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-white/10 transition-colors"
     />
   )
 }

@@ -6,7 +6,11 @@ import { useRouter } from 'next/navigation'
 import { FaUser } from 'react-icons/fa'
 import { useClerk, useUser, SignInButton } from '@clerk/nextjs'
 
-export function UserMenu() {
+interface UserMenuProps {
+  theme?: 'light' | 'dark'
+}
+
+export function UserMenu({ theme = 'light' }: UserMenuProps) {
   const router = useRouter()
   const { user } = useUser()
   const { signOut } = useClerk()
@@ -36,7 +40,12 @@ export function UserMenu() {
     return (
       <div className="flex items-center">
         <SignInButton mode="modal">
-          <Button type="primary">开始使用</Button>
+          <Button
+            type="primary"
+            className="!bg-emerald-500 hover:!bg-emerald-600 !border-emerald-500 hover:!border-emerald-600"
+          >
+            开始使用
+          </Button>
         </SignInButton>
       </div>
     )
@@ -49,9 +58,13 @@ export function UserMenu() {
           size={32}
           src={user.imageUrl}
           icon={!user.imageUrl && <FaUser />}
-          className="bg-primary-100"
+          className={theme === 'dark' ? 'bg-gray-700' : 'bg-primary-100'}
         />
-        <span className="text-sm font-medium hidden md:block">
+        <span
+          className={`text-sm font-medium hidden md:block ${
+            theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+          }`}
+        >
           {user.fullName || user.username}
         </span>
       </div>

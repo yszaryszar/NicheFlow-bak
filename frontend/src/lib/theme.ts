@@ -3,11 +3,11 @@ import { ThemeConfig } from 'antd'
 // Ant Design 主题配置
 export const antdTheme: ThemeConfig = {
   token: {
-    colorPrimary: '#0ea5e9', // primary-500
+    colorPrimary: '#10b981', // emerald-500
     colorSuccess: '#22c55e',
     colorWarning: '#f59e0b',
     colorError: '#ef4444',
-    colorInfo: '#0ea5e9',
+    colorInfo: '#10b981',
     borderRadius: 8,
     wireframe: false,
   },
@@ -16,6 +16,8 @@ export const antdTheme: ThemeConfig = {
       borderRadius: 8,
       controlHeight: 40,
       paddingContentHorizontal: 20,
+      colorPrimary: '#10b981',
+      colorPrimaryHover: '#059669',
     },
     Input: {
       borderRadius: 8,
@@ -30,6 +32,12 @@ export const antdTheme: ThemeConfig = {
     },
     Modal: {
       borderRadius: 12,
+    },
+    Layout: {
+      headerBg: 'transparent',
+      headerHeight: 64,
+      headerPadding: 0,
+      siderBg: 'transparent',
     },
   },
 }
