@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "dotenv -e .env.development -- next dev",
+    "dev": "dotenv -e .env.development -- next dev --turbo",
     "build:dev": "dotenv -e .env.development -- next build",
     "build:prod": "dotenv -e .env.production -- next build",
     "start:dev": "dotenv -e .env.development -- next start",
