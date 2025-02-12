@@ -4,17 +4,12 @@ import { Avatar, Button, Dropdown } from 'antd'
 import type { MenuProps } from 'antd'
 import { useRouter } from 'next/navigation'
 import { FaUser } from 'react-icons/fa'
+import { useClerk, useUser } from '@clerk/nextjs'
 
-interface UserMenuProps {
-  user?: {
-    name: string
-    email: string
-    image?: string
-  } | null
-}
-
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu() {
   const router = useRouter()
+  const { user } = useUser()
+  const { signOut } = useClerk()
 
   const menuItems: MenuProps['items'] = [
     {
@@ -33,19 +28,17 @@ export function UserMenu({ user }: UserMenuProps) {
     {
       key: 'logout',
       label: '退出登录',
-      onClick: () => {
-        // TODO: 实现登出逻辑
-      },
+      onClick: () => signOut(() => router.push('/')),
     },
   ]
 
   if (!user) {
     return (
       <div className="flex items-center space-x-4">
-        <Button type="link" onClick={() => router.push('/login')}>
+        <Button type="link" onClick={() => router.push('/sign-in')}>
           登录
         </Button>
-        <Button type="primary" onClick={() => router.push('/register')}>
+        <Button type="primary" onClick={() => router.push('/sign-up')}>
           注册
         </Button>
       </div>
@@ -57,11 +50,13 @@ export function UserMenu({ user }: UserMenuProps) {
       <div className="flex items-center space-x-2 cursor-pointer">
         <Avatar
           size={32}
-          src={user.image}
-          icon={!user.image && <FaUser />}
+          src={user.imageUrl}
+          icon={!user.imageUrl && <FaUser />}
           className="bg-primary-100"
         />
-        <span className="text-sm font-medium hidden md:block">{user.name}</span>
+        <span className="text-sm font-medium hidden md:block">
+          {user.fullName || user.username}
+        </span>
       </div>
     </Dropdown>
   )

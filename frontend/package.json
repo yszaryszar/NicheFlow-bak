@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "dotenv -e .env.development -- next dev --turbo",
+    "dev": "export HTTPS_PROXY=http://127.0.0.1:7897 HTTP_PROXY=http://127.0.0.1:7897 && dotenv -e .env.development -- next dev --turbo",
     "build:dev": "dotenv -e .env.development -- next build",
     "build:prod": "dotenv -e .env.production -- next build",
     "start:dev": "dotenv -e .env.development -- next start",
@@ -28,13 +28,16 @@
     ]
   },
   "dependencies": {
+    "@ant-design/cssinjs": "^1.23.0",
     "@ant-design/icons": "^5.3.0",
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@clerk/localizations": "^3.10.5",
+    "@clerk/nextjs": "^6.11.2",
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-query-devtools": "^5.0.0",
     "antd": "^5.14.1",
     "axios": "^1.6.0",
     "next": "15.1.7",
-    "next-auth": "^4.24.11",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^5.4.0",
