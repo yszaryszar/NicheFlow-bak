@@ -4,7 +4,7 @@ import { Avatar, Button, Dropdown } from 'antd'
 import type { MenuProps } from 'antd'
 import { useRouter } from 'next/navigation'
 import { FaUser } from 'react-icons/fa'
-import { useClerk, useUser } from '@clerk/nextjs'
+import { useClerk, useUser, SignInButton } from '@clerk/nextjs'
 
 export function UserMenu() {
   const router = useRouter()
@@ -34,13 +34,10 @@ export function UserMenu() {
 
   if (!user) {
     return (
-      <div className="flex items-center space-x-4">
-        <Button type="link" onClick={() => router.push('/sign-in')}>
-          登录
-        </Button>
-        <Button type="primary" onClick={() => router.push('/sign-up')}>
-          注册
-        </Button>
+      <div className="flex items-center">
+        <SignInButton mode="modal">
+          <Button type="primary">开始使用</Button>
+        </SignInButton>
       </div>
     )
   }

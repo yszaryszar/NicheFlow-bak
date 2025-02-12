@@ -3,11 +3,12 @@ import { clerkMiddleware } from '@clerk/nextjs/server'
 // 这个配置指定了哪些路由需要认证
 export default clerkMiddleware()
 
+// 配置需要应用中间件的路由
 export const config = {
   matcher: [
-    // 跳过 Next.js 内部路由和所有静态文件
+    // Skip Next.js internals and all static files, unless found in search params
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // 始终为 API 路由运行
+    // Always run for API routes
     '/(api|trpc)(.*)',
   ],
 }
