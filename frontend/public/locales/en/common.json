@@ -1,0 +1,69 @@
+{
+  "hero": {
+    "title": "NicheFlow",
+    "subtitle": "One-Stop Content Creation & Management Platform",
+    "description": "Making content creation simpler and management more efficient"
+  },
+  "features": {
+    "contentGeneration": {
+      "title": "AI Content Generation",
+      "description": "AI-powered content generation providing high-quality, original articles"
+    },
+    "platformManagement": {
+      "title": "Multi-Platform Management",
+      "description": "One-click publishing to major content platforms with unified content management"
+    },
+    "dataAnalysis": {
+      "title": "Data Analytics",
+      "description": "Comprehensive data analysis for content optimization and decision making"
+    }
+  },
+  "stats": {
+    "users": {
+      "value": "10K+",
+      "label": "Active Users"
+    },
+    "articles": {
+      "value": "100K+",
+      "label": "Generated Articles"
+    },
+    "platforms": {
+      "value": "50+",
+      "label": "Supported Platforms"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "about": "About"
+  },
+  "footer": {
+    "description": "AI-driven vertical platform content creation assistant, making creation simpler and more efficient.",
+    "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "docs": "Documentation",
+    "resources": "Resources",
+    "help": "Help Center",
+    "api": "API Docs",
+    "changelog": "Changelog",
+    "about": "About",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "terms": "Terms of Use",
+    "rights": "All rights reserved."
+  },
+  "readyToStart": "Ready to Start Your Content Journey?",
+  "joinNicheFlow": "Join NicheFlow and experience intelligent content creation",
+  "getStarted": "Get Started",
+  "welcomeBack": "Welcome Back",
+  "quickActions": "Quick Actions",
+  "usageStatistics": "Usage Statistics",
+  "recentActivities": "Recent Activities",
+  "userMenu": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "signOut": "Sign Out"
+  }
+}

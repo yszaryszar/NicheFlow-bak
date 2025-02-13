@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import { i18n } from './next-i18next.config'
 
 const config: NextConfig = {
   reactStrictMode: true,
@@ -31,8 +32,8 @@ const config: NextConfig = {
   env: {
     APP_ENV: process.env.APP_ENV || 'development',
   },
-  // 禁用 i18n 路由
-  i18n: null,
+  // 启用 i18n 配置
+  i18n,
 }
 
 export default config

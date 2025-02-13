@@ -4,6 +4,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { zhCN, enUS, zhTW, jaJP, frFR, deDE, itIT, esES, ptBR, nlNL } from '@clerk/localizations'
 import { ReactNode, useEffect, useState } from 'react'
 import { dark } from '@clerk/themes'
+import { useLanguageStore } from '@/stores/language-store'
 
 interface AuthProviderProps {
   children: ReactNode
@@ -69,6 +70,10 @@ export const darkAppearance = {
 
 // 语言映射
 const localizationMap = {
+  // 当前支持的语言
+  zh: zhCN,
+  en: enUS,
+  // 预留的语言支持
   'zh-CN': zhCN,
   'zh-TW': zhTW,
   'en-US': enUS,
@@ -81,22 +86,27 @@ const localizationMap = {
   'nl-NL': nlNL,
 } as const
 
-// 获取用户语言设置
-const getUserLocale = () => {
-  if (typeof window === 'undefined') return zhCN
-
-  const userLang = navigator.language
-  const langCode = userLang.split('-')[0].toLowerCase()
-
-  // 完整匹配
-  if (userLang in localizationMap) {
-    return localizationMap[userLang as keyof typeof localizationMap]
+// 获取本地化设置
+const getLocalization = (language: string) => {
+  // 优先使用当前支持的简单语言代码
+  if (language === 'zh' || language === 'en') {
+    return localizationMap[language]
   }
 
-  // 语言代码匹配
-  switch (langCode) {
+  // 如果是完整的语言代码，尝试匹配
+  if (language in localizationMap) {
+    return localizationMap[language as keyof typeof localizationMap]
+  }
+
+  // 提取语言代码前缀
+  const langPrefix = language.split('-')[0].toLowerCase()
+
+  // 根据语言前缀返回对应的本地化
+  switch (langPrefix) {
     case 'zh':
       return zhCN
+    case 'en':
+      return enUS
     case 'ja':
       return jaJP
     case 'fr':
@@ -117,8 +127,8 @@ const getUserLocale = () => {
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const [localization, setLocalization] = useState(enUS)
   const [isDark, setIsDark] = useState(false)
+  const { language } = useLanguageStore()
 
   useEffect(() => {
     // 检查当前主题
@@ -138,15 +148,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     // 初始检查
     checkTheme()
 
-    // 设置语言
-    setLocalization(getUserLocale())
-
     return () => observer.disconnect()
   }, [])
 
   return (
     <ClerkProvider
-      localization={localization}
+      localization={getLocalization(language)}
       appearance={{
         ...(isDark ? darkAppearance : clerkAppearance),
         baseTheme: isDark ? dark : undefined,

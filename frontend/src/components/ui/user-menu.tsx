@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from './dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from './avatar'
+import { useTranslation } from 'react-i18next'
 
 interface UserMenuProps {
   theme?: 'light' | 'dark'
@@ -21,6 +22,7 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
   const router = useRouter()
   const { user } = useUser()
   const { signOut } = useClerk()
+  const { t } = useTranslation('common')
 
   if (!user) {
     return (
@@ -30,7 +32,7 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
             variant="default"
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
-            开始使用
+            {t('getStarted')}
           </Button>
         </SignInButton>
       </div>
@@ -58,14 +60,14 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
-          个人中心
+          {t('userMenu.profile')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
-          账号设置
+          {t('userMenu.settings')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut(() => router.push('/'))}>
-          退出登录
+          {t('userMenu.signOut')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

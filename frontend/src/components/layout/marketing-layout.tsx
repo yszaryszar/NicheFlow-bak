@@ -6,21 +6,23 @@ import { Logo } from '@/components/ui/logo'
 import { NavMenu } from '@/components/ui/nav-menu'
 import { ThemeSwitch } from '@/components/ui/theme-switch'
 import { UserMenu } from '@/components/ui/user-menu'
+import { LanguageSwitch } from '@/components/ui/language-switch'
+import { useTranslation } from 'react-i18next'
 
 const marketingNavItems = [
   {
     key: 'features',
-    label: '功能',
+    label: 'nav.features',
     href: '/#features',
   },
   {
     key: 'pricing',
-    label: '定价',
+    label: 'nav.pricing',
     href: '/pricing',
   },
   {
     key: 'about',
-    label: '关于',
+    label: 'nav.about',
     href: '/about',
   },
 ]
@@ -30,6 +32,13 @@ interface MarketingLayoutProps {
 }
 
 export function MarketingLayout({ children }: MarketingLayoutProps) {
+  const { t } = useTranslation('common')
+
+  const translatedNavItems = marketingNavItems.map(item => ({
+    ...item,
+    label: t(item.label),
+  }))
+
   return (
     <div className="min-h-screen bg-background">
       {/* 顶部导航 */}
@@ -38,10 +47,11 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
           <div className="flex items-center">
             <Logo />
             <div className="hidden md:flex items-center ml-8">
-              <NavMenu items={marketingNavItems} />
+              <NavMenu items={translatedNavItems} />
             </div>
           </div>
           <div className="flex items-center space-x-3">
+            <LanguageSwitch />
             <ThemeSwitch />
             <UserMenu />
           </div>
@@ -58,55 +68,55 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
             <div className="col-span-2 md:col-span-1">
               <Logo />
               <p className="mt-4 text-muted-foreground">
-                AI驱动的垂直平台内容创作助手，让创作更简单、更高效。
+                {t('footer.description', 'AI驱动的垂直平台内容创作助手，让创作更简单、更高效。')}
               </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">产品</h3>
+              <h3 className="font-semibold mb-4">{t('footer.product', '产品')}</h3>
               <div className="space-y-3">
                 <Link href="/#features" className="block text-muted-foreground hover:text-primary">
-                  功能介绍
+                  {t('footer.features', '功能介绍')}
                 </Link>
                 <Link href="/pricing" className="block text-muted-foreground hover:text-primary">
-                  定价方案
+                  {t('footer.pricing', '定价方案')}
                 </Link>
                 <Link href="/docs" className="block text-muted-foreground hover:text-primary">
-                  使用教程
+                  {t('footer.docs', '使用教程')}
                 </Link>
               </div>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">资源</h3>
+              <h3 className="font-semibold mb-4">{t('footer.resources', '资源')}</h3>
               <div className="space-y-3">
                 <Link href="/help" className="block text-muted-foreground hover:text-primary">
-                  帮助中心
+                  {t('footer.help', '帮助中心')}
                 </Link>
                 <Link href="/api" className="block text-muted-foreground hover:text-primary">
-                  开发文档
+                  {t('footer.api', '开发文档')}
                 </Link>
                 <Link href="/changelog" className="block text-muted-foreground hover:text-primary">
-                  更新日志
+                  {t('footer.changelog', '更新日志')}
                 </Link>
               </div>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">关于</h3>
+              <h3 className="font-semibold mb-4">{t('footer.about', '关于')}</h3>
               <div className="space-y-3">
                 <Link href="/about" className="block text-muted-foreground hover:text-primary">
-                  关于我们
+                  {t('footer.aboutUs', '关于我们')}
                 </Link>
                 <Link href="/contact" className="block text-muted-foreground hover:text-primary">
-                  联系我们
+                  {t('footer.contact', '联系我们')}
                 </Link>
                 <Link href="/terms" className="block text-muted-foreground hover:text-primary">
-                  使用条款
+                  {t('footer.terms', '使用条款')}
                 </Link>
               </div>
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-border">
             <p className="text-center text-muted-foreground">
-              © {new Date().getFullYear()} NicheFlow. All rights reserved.
+              © {new Date().getFullYear()} NicheFlow. {t('footer.rights', 'All rights reserved.')}
             </p>
           </div>
         </div>
