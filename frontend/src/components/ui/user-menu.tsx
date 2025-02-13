@@ -51,7 +51,7 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
           </Avatar>
           <span
             className={`text-sm font-medium hidden md:block ${
-              theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              theme === 'dark' ? 'text-muted-foreground' : 'text-foreground'
             }`}
           >
             {user.fullName || user.username}
