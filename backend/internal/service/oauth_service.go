@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/yszaryszar/NicheFlow/backend/internal/config"
 	"github.com/yszaryszar/NicheFlow/backend/internal/model"
@@ -45,12 +46,10 @@ func (s *OAuthService) GetAuthURL(provider string) (string, error) {
 		return "", fmt.Errorf("不支持的认证提供商: %s", provider)
 	}
 
-	// 构建重定向 URL
 	redirectURI := fmt.Sprintf("%s/api/auth/callback/%s", s.cfg.OAuth.BaseURL, provider)
 
-	// 构建参数，确保参数顺序符合 OAuth 2.0 规范
 	params := url.Values{}
-	params.Set("response_type", "code") // 将 response_type 放在最前面
+	params.Set("response_type", "code")
 	params.Set("client_id", clientID)
 	params.Set("redirect_uri", redirectURI)
 	params.Set("scope", strings.Join(scopes, " "))
@@ -58,10 +57,9 @@ func (s *OAuthService) GetAuthURL(provider string) (string, error) {
 	if provider == "google" {
 		params.Set("access_type", "offline")
 		params.Set("prompt", "consent")
-		params.Set("include_granted_scopes", "true") // 添加此参数以包含已授权的权限
+		params.Set("include_granted_scopes", "true")
 	}
 
-	// 使用 url.URL 来构建完整的 URL
 	u, err := url.Parse(authURL)
 	if err != nil {
 		return "", fmt.Errorf("解析认证 URL 失败: %w", err)
@@ -89,10 +87,8 @@ func (s *OAuthService) ExchangeCode(ctx context.Context, provider string, code s
 		return nil, fmt.Errorf("不支持的认证提供商: %s", provider)
 	}
 
-	// 构建重定向 URL
 	redirectURI := fmt.Sprintf("%s/api/auth/callback/%s", s.cfg.OAuth.BaseURL, provider)
 
-	// 准备请求数据
 	data := url.Values{}
 	data.Set("client_id", clientID)
 	data.Set("client_secret", clientSecret)
@@ -100,7 +96,6 @@ func (s *OAuthService) ExchangeCode(ctx context.Context, provider string, code s
 	data.Set("redirect_uri", redirectURI)
 	data.Set("grant_type", "authorization_code")
 
-	// 发送请求
 	req, err := http.NewRequestWithContext(ctx, "POST", tokenURL, strings.NewReader(data.Encode()))
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败: %w", err)
@@ -131,9 +126,7 @@ func (s *OAuthService) ExchangeCode(ctx context.Context, provider string, code s
 		return nil, fmt.Errorf("获取令牌失败: %v", result["error"])
 	}
 
-	// 添加 sub 字段
 	if provider == "google" {
-		// 解析 ID 令牌获取 sub
 		idToken, ok := result["id_token"].(string)
 		if ok {
 			parts := strings.Split(idToken, ".")
@@ -171,7 +164,6 @@ func (s *OAuthService) GetUserInfo(ctx context.Context, provider string, token m
 		return nil, fmt.Errorf("不支持的认证提供商: %s", provider)
 	}
 
-	// 发送请求
 	req, err := http.NewRequestWithContext(ctx, "GET", userInfoURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败: %w", err)
@@ -202,30 +194,48 @@ func (s *OAuthService) GetUserInfo(ctx context.Context, provider string, token m
 		return nil, fmt.Errorf("解析响应失败: %w", err)
 	}
 
-	// 提取用户信息
-	var email, name, image string
+	var email, username, firstName, lastName, imageURL string
 	switch provider {
 	case "google":
 		email = userInfo["email"].(string)
-		name = userInfo["name"].(string)
-		image = userInfo["picture"].(string)
+		name := userInfo["name"].(string)
+		names := strings.Split(name, " ")
+		if len(names) > 0 {
+			firstName = names[0]
+			if len(names) > 1 {
+				lastName = strings.Join(names[1:], " ")
+			}
+		}
+		username = strings.Split(email, "@")[0]
+		imageURL = userInfo["picture"].(string)
 	case "github":
 		email = userInfo["email"].(string)
-		name = userInfo["name"].(string)
-		if name == "" {
-			name = userInfo["login"].(string)
+		username = userInfo["login"].(string)
+		name := userInfo["name"].(string)
+		if name != "" {
+			names := strings.Split(name, " ")
+			if len(names) > 0 {
+				firstName = names[0]
+				if len(names) > 1 {
+					lastName = strings.Join(names[1:], " ")
+				}
+			}
 		}
-		image = userInfo["avatar_url"].(string)
+		imageURL = userInfo["avatar_url"].(string)
 	}
 
-	// 创建用户模型
 	user := &model.User{
-		Email:    email,
-		Name:     name,
-		Image:    image,
-		Provider: provider,
-		Role:     "user",
-		Status:   "active",
+		Email:         email,
+		Username:      username,
+		FirstName:     firstName,
+		LastName:      lastName,
+		ImageURL:      imageURL,
+		EmailVerified: true,
+		LastSignInAt:  time.Now(),
+		Role:          "user",
+		Status:        "active",
+		Language:      "zh",
+		Theme:         "light",
 	}
 
 	return user, nil

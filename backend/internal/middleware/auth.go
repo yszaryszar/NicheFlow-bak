@@ -5,13 +5,16 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/yszaryszar/NicheFlow/backend/internal/config"
 	"github.com/yszaryszar/NicheFlow/backend/internal/model"
 	"github.com/yszaryszar/NicheFlow/backend/internal/service"
 )
 
 // AuthMiddleware 认证中间件
 func AuthMiddleware() gin.HandlerFunc {
-	authService := service.NewAuthService()
+	cfg, _ := config.LoadConfig()
+	oauth := service.NewOAuthService(cfg)
+	authService := service.NewAuthService(oauth)
 
 	return func(c *gin.Context) {
 		// 从请求头获取 Token
@@ -52,7 +55,9 @@ func AuthMiddleware() gin.HandlerFunc {
 
 // OptionalAuth 可选认证中间件
 func OptionalAuth() gin.HandlerFunc {
-	authService := service.NewAuthService()
+	cfg, _ := config.LoadConfig()
+	oauth := service.NewOAuthService(cfg)
+	authService := service.NewAuthService(oauth)
 
 	return func(c *gin.Context) {
 		// 从请求头获取 Token

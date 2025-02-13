@@ -14,19 +14,20 @@ import (
 
 // AuthService 认证服务
 type AuthService struct {
-	db *gorm.DB
+	db    *gorm.DB
+	oauth *OAuthService
 }
 
 // NewAuthService 创建认证服务实例
-func NewAuthService() *AuthService {
+func NewAuthService(oauth *OAuthService) *AuthService {
 	return &AuthService{
-		db: database.GetDB(),
+		db:    database.GetDB(),
+		oauth: oauth,
 	}
 }
 
 // CreateSession 创建会话
 func (s *AuthService) CreateSession(ctx context.Context, userID uint, expiresAt time.Time) (*model.Session, error) {
-	// 生成唯一标识符
 	sessionID := fmt.Sprintf("sess_%d", time.Now().UnixNano())
 	sessionToken := fmt.Sprintf("token_%d", time.Now().UnixNano())
 
@@ -105,20 +106,17 @@ func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
 		return err
 	}
 
-	// 更新用户邮箱验证状态
 	if err := s.db.Model(&model.User{}).
 		Where("email = ?", verificationToken.Email).
 		Update("email_verified", time.Now()).Error; err != nil {
 		return err
 	}
 
-	// 删除已使用的 token
 	return s.db.Delete(&verificationToken).Error
 }
 
 // UpdateProviderAccount 更新 OAuth 账号信息
 func (s *AuthService) UpdateProviderAccount(ctx context.Context, account *model.Account) error {
-	// 序列化提供商账号数据
 	providerAccount, err := json.Marshal(account.ProviderAccount)
 	if err != nil {
 		return err
@@ -153,4 +151,40 @@ func (s *AuthService) ValidateSession(ctx context.Context, sessionToken string) 
 	}
 
 	return session, nil
+}
+
+// HandleOAuthCallback 处理 OAuth 回调
+func (s *AuthService) HandleOAuthCallback(ctx context.Context, provider, code string) (*model.User, error) {
+	token, err := s.oauth.ExchangeCode(ctx, provider, code)
+	if err != nil {
+		return nil, fmt.Errorf("交换令牌失败: %w", err)
+	}
+
+	user, err := s.oauth.GetUserInfo(ctx, provider, token)
+	if err != nil {
+		return nil, fmt.Errorf("获取用户信息失败: %w", err)
+	}
+
+	existingUser, err := s.GetUserByEmail(ctx, user.Email)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("查询用户失败: %w", err)
+	}
+
+	if existingUser != nil {
+		existingUser.Username = user.Username
+		existingUser.FirstName = user.FirstName
+		existingUser.LastName = user.LastName
+		existingUser.ImageURL = user.ImageURL
+		existingUser.LastSignInAt = time.Now()
+		if err := s.db.Save(existingUser).Error; err != nil {
+			return nil, fmt.Errorf("更新用户信息失败: %w", err)
+		}
+		return existingUser, nil
+	}
+
+	if err := s.CreateUser(ctx, user); err != nil {
+		return nil, fmt.Errorf("创建用户失败: %w", err)
+	}
+
+	return user, nil
 }

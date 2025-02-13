@@ -49,9 +49,10 @@ type AuthHandler struct {
 
 // NewAuthHandler 创建认证处理器实例
 func NewAuthHandler(cfg *config.Config) *AuthHandler {
+	oauthService := service.NewOAuthService(cfg)
 	return &AuthHandler{
-		authService:  service.NewAuthService(),
-		oauthService: service.NewOAuthService(cfg),
+		authService:  service.NewAuthService(oauthService),
+		oauthService: oauthService,
 		cfg:          cfg,
 	}
 }

@@ -1,19 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "github.com/yszaryszar/NicheFlow/backend/docs" // 导入 swagger 文档
-	"github.com/yszaryszar/NicheFlow/backend/internal/config"
-	"github.com/yszaryszar/NicheFlow/backend/internal/handler"
-	"github.com/yszaryszar/NicheFlow/backend/internal/middleware"
-	"github.com/yszaryszar/NicheFlow/backend/internal/model"
-	"github.com/yszaryszar/NicheFlow/backend/pkg/cache"
-	"github.com/yszaryszar/NicheFlow/backend/pkg/database"
+	"github.com/yszaryszar/NicheFlow/backend/internal/app"
 )
 
 // @title NicheFlow API
@@ -38,75 +29,22 @@ import (
 // @description 请在此输入 Bearer {token}
 
 func main() {
-	// 加载配置
-	cfg, err := config.LoadConfig()
+	// 创建应用实例
+	application, err := app.New()
 	if err != nil {
-		log.Fatalf("加载配置失败: %v", err)
+		log.Fatalf("创建应用实例失败: %v", err)
 	}
 
-	// 设置运行模式
-	gin.SetMode(cfg.App.Mode)
-
-	// 初始化数据库连接
-	if _, err := database.NewPostgresDB(&cfg.Database); err != nil {
-		log.Fatalf("初始化数据库失败: %v", err)
-	}
-	defer database.Close()
-
-	// 运行数据库迁移
-	if err := model.AutoMigrate(); err != nil {
-		log.Fatalf("数据库迁移失败: %v", err)
+	// 初始化应用
+	if err := application.Initialize(); err != nil {
+		log.Fatalf("初始化应用失败: %v", err)
 	}
 
-	// 初始化 Redis 连接
-	if _, err := cache.NewRedisClient(&cfg.Redis); err != nil {
-		log.Fatalf("初始化 Redis 失败: %v", err)
-	}
-	defer cache.Close()
+	// 确保应用正常关闭
+	defer application.Shutdown()
 
-	// 创建路由
-	r := gin.New()
-	r.Use(gin.Recovery())
-
-	// 只在开发模式下启用日志中间件
-	if cfg.App.Mode == gin.DebugMode {
-		r.Use(gin.Logger())
-	}
-
-	// 注册 Swagger 路由
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	// 创建处理器
-	authHandler := handler.NewAuthHandler(cfg)
-
-	// API 路由组
-	api := r.Group("/api")
-	{
-		// 认证相关路由
-		auth := api.Group("/auth")
-		{
-			// 公开路由
-			auth.GET("/providers", authHandler.HandleProviders)
-			auth.GET("/url/:provider", authHandler.HandleAuthURL)
-			auth.GET("/callback/:provider", authHandler.HandleCallback)
-			auth.GET("/verify-email", authHandler.HandleVerifyEmail)
-
-			// 需要认证的路由
-			authed := auth.Group("")
-			authed.Use(middleware.AuthMiddleware())
-			{
-				authed.GET("/session", authHandler.HandleSession)
-				authed.POST("/signout", authHandler.HandleSignOut)
-			}
-		}
-
-		// TODO: 后续添加其他 API 路由
-	}
-
-	// 启动服务器
-	addr := fmt.Sprintf(":%d", cfg.App.Port)
-	log.Printf("服务器启动在 %s", addr)
-	if err := r.Run(addr); err != nil {
-		log.Fatalf("服务器启动失败: %v", err)
+	// 运行应用
+	if err := application.Run(); err != nil {
+		log.Fatalf("运行应用失败: %v", err)
 	}
 }
