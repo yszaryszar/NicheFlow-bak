@@ -6,19 +6,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Response 统一响应结构
+// Response 响应结构
 type Response struct {
-	Code    int         `json:"code"`            // 业务状态码
-	Message string      `json:"message"`         // 响应消息
-	Data    interface{} `json:"data,omitempty"`  // 响应数据
-	Error   string      `json:"error,omitempty"` // 错误信息
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+	Error   string      `json:"error,omitempty"`
 }
 
 // Success 成功响应
 func Success(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, Response{
-		Code:    200,
-		Message: "操作成功",
+		Code:    http.StatusOK,
+		Message: "success",
 		Data:    data,
 	})
 }
@@ -32,14 +32,14 @@ func Fail(c *gin.Context, code int, message string) {
 }
 
 // Error 错误响应
-func Error(c *gin.Context, httpCode int, message string, err error) {
-	var errMsg string
+func Error(c *gin.Context, code int, message string, err error) {
+	errMsg := ""
 	if err != nil {
 		errMsg = err.Error()
 	}
 
-	c.JSON(httpCode, Response{
-		Code:    httpCode,
+	c.JSON(code, Response{
+		Code:    code,
 		Message: message,
 		Error:   errMsg,
 	})
