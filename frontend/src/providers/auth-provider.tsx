@@ -12,7 +12,7 @@ interface AuthProviderProps {
 // Clerk 主题配置
 export const clerkAppearance = {
   variables: {
-    colorPrimary: 'hsl(162 47% 38%)',
+    colorPrimary: 'hsl(230 84% 54%)',
     colorDanger: 'hsl(0 84.2% 60.2%)',
     colorSuccess: 'hsl(142 71% 45%)',
   },
@@ -21,9 +21,9 @@ export const clerkAppearance = {
       filter: 'none',
     },
     formButtonPrimary: {
-      backgroundColor: 'hsl(162 47% 38%)',
+      backgroundColor: 'hsl(230 84% 54%)',
       '&:hover': {
-        backgroundColor: 'hsl(162 47% 32%)',
+        backgroundColor: 'hsl(230 84% 48%)',
       },
     },
     card: {
