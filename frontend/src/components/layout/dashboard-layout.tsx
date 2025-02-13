@@ -67,9 +67,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname()
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* 侧边栏 */}
-      <aside className="fixed left-0 top-0 bottom-0 w-60 border-r border-gray-100 bg-white/80 backdrop-blur-md">
+      <aside className="fixed left-0 top-0 bottom-0 w-60 border-r border-border bg-background/80 backdrop-blur-md">
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="h-16 flex items-center px-6">
@@ -81,7 +81,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="space-y-1">
               {sidebarItems.map(item =>
                 'type' in item ? (
-                  <hr key="divider" className="my-4 border-gray-100" />
+                  <hr key="divider" className="my-4 border-border" />
                 ) : (
                   <Button
                     key={item.key}
@@ -105,7 +105,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* 主要内容区域 */}
       <div className="ml-60">
         {/* 顶部栏 */}
-        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 flex items-center justify-end space-x-4">
+        <header className="h-16 bg-background/80 backdrop-blur-md border-b border-border px-6 flex items-center justify-end space-x-4">
           <ThemeSwitch />
           <UserMenu />
         </header>

@@ -33,7 +33,7 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* 顶部导航 */}
-      <header className="fixed z-50 w-full bg-background/80 backdrop-blur-md border-b">
+      <header className="fixed z-50 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-between h-16 px-4 mx-auto max-w-7xl">
           <div className="flex items-center">
             <Logo />
@@ -104,7 +104,7 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
               </div>
             </div>
           </div>
-          <div className="mt-12 pt-8 border-t">
+          <div className="mt-12 pt-8 border-t border-border">
             <p className="text-center text-muted-foreground">
               © {new Date().getFullYear()} NicheFlow. All rights reserved.
             </p>
