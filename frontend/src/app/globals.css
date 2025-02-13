@@ -35,29 +35,44 @@
   .dark {
     --background: 230 30% 11%;
     --foreground: 230 10% 98%;
-    --card: 230 30% 15%;
+    --card: 230 30% 13%;
     --card-foreground: 230 10% 98%;
-    --popover: 230 30% 15%;
+    --popover: 230 30% 13%;
     --popover-foreground: 230 10% 98%;
-    --primary: 230 70% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 230 70% 65%;
+    --primary-foreground: 230 10% 98%;
     --secondary: 230 30% 16%;
     --secondary-foreground: 230 10% 98%;
     --muted: 230 30% 16%;
-    --muted-foreground: 230 25% 65%;
-    --accent: 230 70% 70%;
+    --muted-foreground: 230 25% 70%;
+    --accent: 230 70% 75%;
     --accent-foreground: 230 10% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 230 10% 98%;
     --border: 230 30% 16%;
     --input: 230 30% 16%;
-    --ring: 230 70% 60%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --ring: 230 70% 65%;
+    --chart-1: 220 70% 60%;
+    --chart-2: 160 60% 55%;
+    --chart-3: 30 80% 65%;
+    --chart-4: 280 65% 70%;
+    --chart-5: 340 75% 65%;
     --foreground-filter: invert(1);
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 0.04) 0px, transparent 0%),
+      radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 0.04) 0px, transparent 50%),
+      radial-gradient(at 52% 99%, hsla(354, 98%, 61%, 0.04) 0px, transparent 50%),
+      radial-gradient(at 10% 29%, hsla(256, 96%, 67%, 0.04) 0px, transparent 50%),
+      radial-gradient(at 97% 96%, hsla(38, 60%, 74%, 0.04) 0px, transparent 50%),
+      radial-gradient(at 33% 50%, hsla(222, 67%, 73%, 0.04) 0px, transparent 50%),
+      radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 0.04) 0px, transparent 50%);
   }
 }
 
@@ -66,7 +81,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
 }
 
@@ -130,4 +145,121 @@
 
 a {
   @apply text-muted-foreground hover:text-primary transition-colors duration-200;
+}
+
+/* 卡片悬浮效果 */
+.card-hover {
+  @apply transition-all duration-300 ease-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.dark .card-hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* 渐变文本 */
+.gradient-text {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+}
+
+.dark .gradient-text {
+  background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  text-shadow: 0 0 30px rgba(var(--primary), 0.2);
+}
+
+/* 磨砂玻璃效果 */
+.glass {
+  @apply bg-background/80 backdrop-blur-lg border border-border/50 shadow-[0_8px_30px_rgb(0,0,0,0.12)];
+  backdrop-filter: blur(16px);
+}
+
+.dark .glass {
+  @apply bg-background/90 border-border/30 shadow-[0_8px_30px_rgb(0,0,0,0.3)];
+}
+
+/* 背景渐变 */
+.bg-gradient-custom {
+  background:
+    radial-gradient(circle at top left, hsl(var(--background)) 0%, transparent 50%),
+    radial-gradient(circle at top right, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+    radial-gradient(at bottom left, hsl(var(--accent) / 0.1) 0%, transparent 50%);
+}
+
+.dark .bg-gradient-custom {
+  background:
+    radial-gradient(circle at top left, hsl(var(--background)) 0%, transparent 50%),
+    radial-gradient(circle at top right, hsl(var(--primary) / 0.15) 0%, transparent 50%),
+    radial-gradient(at bottom left, hsl(var(--accent) / 0.15) 0%, transparent 50%);
+}
+
+/* 图标容器样式 */
+.icon-container {
+  @apply w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-all duration-300;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--accent) / 0.1) 100%);
+}
+
+.dark .icon-container {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.2) 0%, hsl(var(--accent) / 0.2) 100%);
+}
+
+/* 文本样式优化 */
+.text-gradient-muted {
+  @apply text-muted-foreground/90;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dark .text-gradient-muted {
+  @apply text-muted-foreground;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* 动画过渡 */
+.transition-base {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* 按钮悬浮效果 */
+.button-hover {
+  @apply hover:shadow-md hover:translate-y-[-1px] active:translate-y-[0px];
+}
+
+/* 导航栏样式 */
+.nav-link {
+  @apply relative text-muted-foreground hover:text-foreground transition-colors;
+}
+
+.nav-link::after {
+  @apply content-[''] absolute left-0 bottom-[-2px] w-0 h-[2px] bg-primary transition-all duration-300;
+}
+
+.nav-link:hover::after {
+  @apply w-full;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted/50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted hover:bg-muted/80 rounded-full transition-colors;
+}
+
+/* 选中文本样式 */
+::selection {
+  @apply bg-primary/20 text-foreground;
 }

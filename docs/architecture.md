@@ -561,79 +561,237 @@ export function useAuth() {
 
 ## 3. 设计系统
 
-### 3.1 配色方案
+### 3.1 色彩系统
 
-#### 主题色
+#### 3.1.1 基础色板
 ```css
 :root {
-  /* 亮色模式 */
-  --primary: 230 84% 54%;     /* 主题蓝色 #4F46E5 */
-  --primary-hover: 230 84% 48%;
-  --accent: 230 84% 65%;      /* 强调色 */
-  --background: 0 0% 100%;    /* 纯白背景 */
-  --foreground: 230 25% 12%;  /* 深色文本 */
-  --muted: 230 25% 96%;       /* 浅灰背景 */
-  --muted-foreground: 230 25% 40%; /* 次要文本 */
-  --border: 230 25% 92%;      /* 边框颜色 */
+  /* 主题色 */
+  --primary: 230 84% 54%;    /* 主色调：现代蓝 */
+  --accent: 230 84% 65%;     /* 强调色：亮蓝 */
+  
+  /* 中性色 */
+  --background: 0 0% 100%;   /* 背景色：纯白 */
+  --foreground: 230 25% 12%; /* 前景色：深灰 */
+  --muted: 230 25% 96%;      /* 柔和色：浅灰 */
+  --border: 230 25% 92%;     /* 边框色：淡灰 */
+  
+  /* 功能色 */
+  --destructive: 0 84.2% 60.2%;    /* 危险色：红色 */
+  --warning: 38 92% 50%;           /* 警告色：橙色 */
+  --success: 142 71% 45%;          /* 成功色：绿色 */
+  --info: 200 98% 39%;             /* 信息色：蓝色 */
 }
 
 .dark {
-  /* 暗色模式 */
-  --primary: 230 70% 60%;     /* 亮蓝色 */
-  --primary-hover: 230 70% 55%;
-  --accent: 230 70% 70%;      /* 亮色强调 */
+  /* 暗色主题 */
+  --primary: 230 70% 65%;     /* 更亮的主色调 */
+  --accent: 230 70% 75%;      /* 更亮的强调色 */
   --background: 230 30% 11%;  /* 深色背景 */
   --foreground: 230 10% 98%;  /* 浅色文本 */
   --muted: 230 30% 16%;       /* 深灰背景 */
-  --muted-foreground: 230 25% 65%; /* 次要文本 */
-  --border: 230 30% 16%;      /* 边框颜色 */
+  --border: 230 30% 16%;      /* 深色边框 */
 }
 ```
 
-#### 颜色应用规范
+#### 3.1.2 色彩应用规范
 
-1. Logo 和品牌元素
-   - Logo 图标和文字：使用 `text-primary`
-   - 品牌装饰元素：使用 `text-primary` 或其透明度变体
+1. 品牌元素
+   - Logo 和主要标题：使用 `primary` 色
+   - 强调文本：使用渐变效果 `gradient-text`
+   - 装饰元素：使用 `accent` 色
 
-2. 导航和交互元素
-   - 主导航链接：默认 `text-muted-foreground`，悬浮和激活状态 `text-primary`
-   - 按钮：主要按钮使用 `bg-primary text-primary-foreground`
-   - 次要按钮：`bg-secondary text-secondary-foreground`
-   - 图标按钮：默认继承文本颜色，悬浮状态使用 `text-primary`
+2. 界面元素
+   - 背景层次：从纯色到渐变背景
+   - 卡片效果：磨砂玻璃效果配合阴影
+   - 边框和分割线：使用 `border` 色
+   - 文本层次：主要文本、次要文本、提示文本
 
-3. 内容和文本
-   - 主要文本：`text-foreground`
-   - 次要文本：`text-muted-foreground`
-   - 标题：`text-foreground` 配合适当的字重
-   - 链接：默认 `text-muted-foreground`，悬浮状态 `text-primary`
+3. 交互状态
+   - 默认状态：中性色
+   - 悬浮状态：增加不透明度或阴影
+   - 激活状态：加深主色调
+   - 禁用状态：降低对比度
 
-4. 背景层级
-   - 页面背景：`bg-background`
-   - 卡片背景：`bg-card`
-   - 弹出层：`bg-popover` 配合 `backdrop-blur-md`
-   - 悬浮层：`bg-accent/10`
+### 3.2 排版系统
 
-5. 状态和反馈
-   - 成功：`text-emerald-500` (亮色) / `text-emerald-400` (暗色)
-   - 错误：`text-red-500` (亮色) / `text-red-400` (暗色)
-   - 警告：`text-amber-500` (亮色) / `text-amber-400` (暗色)
-   - 信息：`text-blue-500` (亮色) / `text-blue-400` (暗色)
+#### 3.2.1 字体家族
+```css
+{
+  /* 系统字体 */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  /* 特殊字体 */
+  --font-display: 'Cal Sans', sans-serif;
+}
+```
 
-6. 特殊效果
-   - 磨砂玻璃效果：`bg-background/80 backdrop-blur-md`
-   - 渐变背景：`bg-gradient-to-b from-background to-accent/10`
-   - 投影效果：`shadow-md` 配合 `border-border`
+#### 3.2.2 字体大小
+```css
+{
+  /* 标题系统 */
+  --text-h1: 2.5rem;    /* 40px */
+  --text-h2: 2rem;      /* 32px */
+  --text-h3: 1.5rem;    /* 24px */
+  --text-h4: 1.25rem;   /* 20px */
+  
+  /* 正文系统 */
+  --text-base: 1rem;    /* 16px */
+  --text-sm: 0.875rem;  /* 14px */
+  --text-xs: 0.75rem;   /* 12px */
+}
+```
 
-7. 暗色模式适配
-   - 自动反转：使用 CSS 变量和 Tailwind 的暗色模式类
-   - 对比度：确保文本和背景的对比度符合 WCAG 2.1 标准
-   - 过渡：添加 `transition-colors` 实现平滑切换
+### 3.3 视觉效果
 
-8. 图表和数据可视化
-   - 主要数据：`text-primary`
-   - 次要数据：`text-muted-foreground`
-   - 图表颜色：使用 `--chart-1` 到 `--chart-5` 变量
+#### 3.3.1 阴影系统
+```css
+{
+  /* 基础阴影 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  
+  /* 特殊效果 */
+  --shadow-glow: 0 0 30px rgba(var(--primary), 0.2);
+}
+```
 
-### 3.2 响应式设计
-// ... 其他内容保持不变 ...
+#### 3.3.2 特效样式
+
+1. 磨砂玻璃效果
+```css
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+```
+
+2. 渐变效果
+```css
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  color: transparent;
+}
+```
+
+3. 悬浮动画
+```css
+.hover-effect {
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+```
+
+### 3.4 组件设计
+
+#### 3.4.1 卡片组件
+- 使用磨砂玻璃效果
+- 柔和圆角 (border-radius: 12px)
+- 渐变边框
+- 悬浮动画效果
+
+#### 3.4.2 按钮系统
+- 主要按钮：实心背景 + 白色文本
+- 次要按钮：透明背景 + 边框
+- 图标按钮：圆形或方形
+- 统一悬浮效果
+
+#### 3.4.3 表单元素
+- 输入框：简洁边框 + 聚焦效果
+- 选择器：自定义下拉样式
+- 复选框：动画过渡效果
+- 统一错误状态样式
+
+### 3.5 响应式设计
+
+#### 3.5.1 断点系统
+```css
+{
+  --screen-sm: 640px;
+  --screen-md: 768px;
+  --screen-lg: 1024px;
+  --screen-xl: 1280px;
+  --screen-2xl: 1536px;
+}
+```
+
+#### 3.5.2 栅格系统
+- 12列网格系统
+- 响应式间距
+- 自适应容器
+- 弹性布局
+
+### 3.6 动画系统
+
+#### 3.6.1 过渡效果
+```css
+{
+  --transition-base: all 0.3s ease;
+  --transition-fast: all 0.15s ease;
+  --transition-slow: all 0.5s ease;
+}
+```
+
+#### 3.6.2 动画类型
+1. 页面切换动画
+2. 组件进入/退出动画
+3. 交互反馈动画
+4. 加载动画
+
+### 3.7 可访问性
+
+#### 3.7.1 对比度要求
+- 正文文本：最小对比度 4.5:1
+- 大号文本：最小对比度 3:1
+- 装饰性元素：无最低要求
+
+#### 3.7.2 键盘导航
+- 焦点状态清晰可见
+- Tab 键顺序合理
+- 快捷键支持
+
+#### 3.7.3 屏幕阅读器
+- 语义化 HTML
+- ARIA 标签
+- 图片替代文本
+
+### 3.8 主题切换
+
+#### 3.8.1 亮色主题
+- 纯白背景
+- 高对比度文本
+- 柔和阴影
+- 浅色边框
+
+#### 3.8.2 暗色主题
+- 深色背景
+- 柔和文本
+- 强化阴影
+- 发光效果
+
+### 3.9 设计规范
+
+#### 3.9.1 布局原则
+- 统一间距系统
+- 对齐准则
+- 层次分明
+- 留白得当
+
+#### 3.9.2 交互原则
+- 即时反馈
+- 渐进式动画
+- 容错设计
+- 清晰提示
+
+#### 3.9.3 视觉原则
+- 简洁现代
+- 层次分明
+- 重点突出
+- 一致性强
