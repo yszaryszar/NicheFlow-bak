@@ -26,7 +26,10 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
     return (
       <div className="flex items-center">
         <SignInButton mode="modal">
-          <Button variant="default" className="bg-emerald-500 hover:bg-emerald-600">
+          <Button
+            variant="default"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
             开始使用
           </Button>
         </SignInButton>
