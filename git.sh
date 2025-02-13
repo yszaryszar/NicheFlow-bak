@@ -26,6 +26,11 @@ git merge origin/$develop_branch --ff-only
 echo "正在将更改推送到远程 main 分支..."
 git push origin $main_branch
 
+# 切换回 develop 分支并同步
+echo "切换回 develop 分支并同步远程更改..."
+git checkout $develop_branch
+git pull origin $develop_branch
+
 # 清理分支（可选）
 read -p "是否要删除本地功能分支 '$current_branch'? (y/[n]): " delete_branch
 delete_branch=${delete_branch:-y} # 默认值设为 'y'
