@@ -15,7 +15,7 @@
 - Next.js 15 + Turbopack + React 18 + TypeScript
 - Zustand (客户端状态管理)
 - TanStack Query (服务端状态管理)
-- Ant Design + Tailwind CSS
+- shadCN + Tailwind CSS
 - next-i18next (国际化)
 
 ### 后端

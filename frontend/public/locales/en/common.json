@@ -65,5 +65,14 @@
     "profile": "Profile",
     "settings": "Settings",
     "signOut": "Sign Out"
+  },
+  "dashboard": {
+    "menu": {
+      "workspace": "Workspace",
+      "scripts": "TikTok Scripts",
+      "videos": "Video Generation",
+      "settings": "Settings",
+      "support": "Help & Support"
+    }
   }
 }

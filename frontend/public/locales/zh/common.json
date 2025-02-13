@@ -65,5 +65,14 @@
     "profile": "个人中心",
     "settings": "账号设置",
     "signOut": "退出登录"
+  },
+  "dashboard": {
+    "menu": {
+      "workspace": "工作台",
+      "scripts": "TikTok脚本",
+      "videos": "视频生成",
+      "settings": "设置",
+      "support": "帮助支持"
+    }
   }
 }

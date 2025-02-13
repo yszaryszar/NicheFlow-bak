@@ -15,12 +15,13 @@ import { UserMenu } from '@/components/ui/user-menu'
 import { LanguageSwitch } from '@/components/ui/language-switch'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
 
 type SidebarItem =
   | {
       key: string
       icon: JSX.Element
-      label: string
+      labelKey: string
       disabled?: boolean
     }
   | {
@@ -31,17 +32,17 @@ const sidebarItems: SidebarItem[] = [
   {
     key: '/dashboard',
     icon: <RiDashboardLine className="text-lg" />,
-    label: '工作台',
+    labelKey: 'dashboard.menu.workspace',
   },
   {
     key: '/dashboard/scripts',
     icon: <RiFileTextLine className="text-lg" />,
-    label: 'TikTok脚本',
+    labelKey: 'dashboard.menu.scripts',
   },
   {
     key: '/dashboard/videos',
     icon: <RiVideoLine className="text-lg" />,
-    label: '视频生成',
+    labelKey: 'dashboard.menu.videos',
     disabled: true,
   },
   {
@@ -50,12 +51,12 @@ const sidebarItems: SidebarItem[] = [
   {
     key: '/dashboard/settings',
     icon: <RiSettings4Line className="text-lg" />,
-    label: '设置',
+    labelKey: 'dashboard.menu.settings',
   },
   {
     key: '/dashboard/support',
     icon: <RiCustomerServiceLine className="text-lg" />,
-    label: '帮助支持',
+    labelKey: 'dashboard.menu.support',
   },
 ]
 
@@ -66,6 +67,7 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const { t } = useTranslation('common')
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,7 +96,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     onClick={() => !item.disabled && router.push(item.key)}
                   >
                     {item.icon}
-                    {item.label}
+                    {t(item.labelKey)}
                   </Button>
                 )
               )}
