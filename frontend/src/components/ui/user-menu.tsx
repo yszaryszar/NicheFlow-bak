@@ -1,10 +1,17 @@
 'use client'
 
-import { Avatar, Button, Dropdown } from 'antd'
-import type { MenuProps } from 'antd'
 import { useRouter } from 'next/navigation'
 import { FaUser } from 'react-icons/fa'
 import { useClerk, useUser, SignInButton } from '@clerk/nextjs'
+import { Button } from './button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './dropdown-menu'
+import { Avatar, AvatarFallback, AvatarImage } from './avatar'
 
 interface UserMenuProps {
   theme?: 'light' | 'dark'
@@ -15,35 +22,11 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
   const { user } = useUser()
   const { signOut } = useClerk()
 
-  const menuItems: MenuProps['items'] = [
-    {
-      key: 'profile',
-      label: '个人中心',
-      onClick: () => router.push('/dashboard/profile'),
-    },
-    {
-      key: 'settings',
-      label: '账号设置',
-      onClick: () => router.push('/dashboard/settings'),
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'logout',
-      label: '退出登录',
-      onClick: () => signOut(() => router.push('/')),
-    },
-  ]
-
   if (!user) {
     return (
       <div className="flex items-center">
         <SignInButton mode="modal">
-          <Button
-            type="primary"
-            className="!bg-emerald-500 hover:!bg-emerald-600 !border-emerald-500 hover:!border-emerald-600"
-          >
+          <Button variant="default" className="bg-emerald-500 hover:bg-emerald-600">
             开始使用
           </Button>
         </SignInButton>
@@ -52,22 +35,36 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
   }
 
   return (
-    <Dropdown menu={{ items: menuItems }} placement="bottomRight">
-      <div className="flex items-center space-x-2 cursor-pointer">
-        <Avatar
-          size={32}
-          src={user.imageUrl}
-          icon={!user.imageUrl && <FaUser />}
-          className={theme === 'dark' ? 'bg-gray-700' : 'bg-primary-100'}
-        />
-        <span
-          className={`text-sm font-medium hidden md:block ${
-            theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-          }`}
-        >
-          {user.fullName || user.username}
-        </span>
-      </div>
-    </Dropdown>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <div className="flex items-center space-x-2 cursor-pointer">
+          <Avatar>
+            <AvatarImage src={user.imageUrl} alt={user.fullName || user.username || ''} />
+            <AvatarFallback>
+              <FaUser />
+            </AvatarFallback>
+          </Avatar>
+          <span
+            className={`text-sm font-medium hidden md:block ${
+              theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+            }`}
+          >
+            {user.fullName || user.username}
+          </span>
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+          个人中心
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+          账号设置
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => signOut(() => router.push('/'))}>
+          退出登录
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

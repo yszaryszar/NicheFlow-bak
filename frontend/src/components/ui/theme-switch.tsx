@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from 'antd'
 import { useEffect, useState } from 'react'
 import { BsSun, BsMoon } from 'react-icons/bs'
+import { Button } from './button'
 import { ThemeMode, getSystemTheme, setThemeMode } from '@/lib/theme'
 
 export function ThemeSwitch() {
@@ -27,16 +27,16 @@ export function ThemeSwitch() {
 
   return (
     <Button
-      type="text"
-      icon={
-        isDark ? (
-          <BsMoon className="text-lg text-gray-300 hover:text-white" />
-        ) : (
-          <BsSun className="text-lg text-gray-300 hover:text-white" />
-        )
-      }
+      variant="ghost"
+      size="icon"
       onClick={toggleTheme}
-      className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-white/10 transition-colors"
-    />
+      className="w-9 h-9 rounded-lg hover:bg-white/10 transition-colors"
+    >
+      {isDark ? (
+        <BsMoon className="text-lg text-gray-300 hover:text-white" />
+      ) : (
+        <BsSun className="text-lg text-gray-300 hover:text-white" />
+      )}
+    </Button>
   )
 }

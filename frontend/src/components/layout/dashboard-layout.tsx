@@ -1,7 +1,5 @@
 'use client'
 
-import { Layout, Menu } from 'antd'
-import type { MenuProps } from 'antd'
 import { ReactNode } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import {
@@ -14,10 +12,21 @@ import {
 import { Logo } from '@/components/ui/logo'
 import { ThemeSwitch } from '@/components/ui/theme-switch'
 import { UserMenu } from '@/components/ui/user-menu'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
-const { Header, Sider, Content } = Layout
+type SidebarItem =
+  | {
+      key: string
+      icon: JSX.Element
+      label: string
+      disabled?: boolean
+    }
+  | {
+      type: 'divider'
+    }
 
-const sidebarItems: MenuProps['items'] = [
+const sidebarItems: SidebarItem[] = [
   {
     key: '/dashboard',
     icon: <RiDashboardLine className="text-lg" />,
@@ -58,13 +67,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname()
 
   return (
-    <Layout className="min-h-screen">
+    <div className="min-h-screen">
       {/* 侧边栏 */}
-      <Sider
-        theme="light"
-        width={240}
-        className="!fixed !left-0 !top-0 !bottom-0 !border-r !border-gray-100 !bg-white/80 !backdrop-blur-md"
-      >
+      <aside className="fixed left-0 top-0 bottom-0 w-60 border-r border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="h-16 flex items-center px-6">
@@ -72,31 +77,42 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           {/* 导航菜单 */}
-          <Menu
-            mode="inline"
-            selectedKeys={[pathname]}
-            items={sidebarItems}
-            onClick={({ key }) => router.push(key)}
-            className="!flex-1 !border-none !bg-transparent"
-          />
+          <nav className="flex-1 px-3 py-4">
+            <div className="space-y-1">
+              {sidebarItems.map(item =>
+                'type' in item ? (
+                  <hr key="divider" className="my-4 border-gray-100" />
+                ) : (
+                  <Button
+                    key={item.key}
+                    variant={pathname === item.key ? 'secondary' : 'ghost'}
+                    className={cn(
+                      'w-full justify-start gap-3 font-normal',
+                      item.disabled && 'opacity-50 cursor-not-allowed'
+                    )}
+                    onClick={() => !item.disabled && router.push(item.key)}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </Button>
+                )
+              )}
+            </div>
+          </nav>
         </div>
-      </Sider>
+      </aside>
 
       {/* 主要内容区域 */}
-      <Layout className="ml-60">
+      <div className="ml-60">
         {/* 顶部栏 */}
-        <Header className="!bg-white/80 !backdrop-blur-md !border-b !border-gray-100 !px-6 !p-0">
-          <div className="flex items-center justify-end h-16 space-x-4">
-            <ThemeSwitch />
-            <UserMenu />
-          </div>
-        </Header>
+        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 flex items-center justify-end space-x-4">
+          <ThemeSwitch />
+          <UserMenu />
+        </header>
 
         {/* 内容区域 */}
-        <Content className="p-6">
-          <main className="min-h-[calc(100vh-theme(spacing.32))]">{children}</main>
-        </Content>
-      </Layout>
-    </Layout>
+        <main className="p-6 min-h-[calc(100vh-theme(spacing.32))]">{children}</main>
+      </div>
+    </div>
   )
 }

@@ -1,14 +1,11 @@
 'use client'
 
-import { Layout } from 'antd'
 import { ReactNode } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/ui/logo'
 import { NavMenu } from '@/components/ui/nav-menu'
 import { ThemeSwitch } from '@/components/ui/theme-switch'
 import { UserMenu } from '@/components/ui/user-menu'
-
-const { Header, Content, Footer } = Layout
 
 const marketingNavItems = [
   {
@@ -34,9 +31,9 @@ interface MarketingLayoutProps {
 
 export function MarketingLayout({ children }: MarketingLayoutProps) {
   return (
-    <Layout className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white">
       {/* 顶部导航 */}
-      <Header className="!fixed !z-50 !w-full !bg-white/80 !backdrop-blur-md !border-b !border-gray-100 !p-0">
+      <header className="fixed z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="flex items-center justify-between h-16 px-4 mx-auto max-w-7xl">
           <div className="flex items-center">
             <Logo className="text-gray-900" />
@@ -49,15 +46,13 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
             <UserMenu theme="light" />
           </div>
         </div>
-      </Header>
+      </header>
 
       {/* 主要内容 */}
-      <Content className="mt-16">
-        <main>{children}</main>
-      </Content>
+      <main className="mt-16">{children}</main>
 
       {/* 页脚 */}
-      <Footer className="bg-gray-50">
+      <footer className="bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">
@@ -115,7 +110,7 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
             </p>
           </div>
         </div>
-      </Footer>
-    </Layout>
+      </footer>
+    </div>
   )
 }
