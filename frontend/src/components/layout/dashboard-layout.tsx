@@ -12,6 +12,7 @@ import {
 import { Logo } from '@/components/ui/logo'
 import { ThemeSwitch } from '@/components/ui/theme-switch'
 import { UserMenu } from '@/components/ui/user-menu'
+import { LanguageSwitch } from '@/components/ui/language-switch'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -106,6 +107,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="ml-60">
         {/* 顶部栏 */}
         <header className="h-16 bg-background/80 backdrop-blur-md border-b border-border px-6 flex items-center justify-end space-x-4">
+          <LanguageSwitch />
           <ThemeSwitch />
           <UserMenu />
         </header>
