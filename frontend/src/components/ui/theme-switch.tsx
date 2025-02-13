@@ -13,7 +13,6 @@ export function ThemeSwitch() {
   useEffect(() => {
     const savedMode = getThemeMode()
     setMode(savedMode)
-    setThemeMode(savedMode)
     setMounted(true)
 
     // 监听系统主题变化
@@ -26,14 +25,14 @@ export function ThemeSwitch() {
 
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [mode])
+  }, [])
 
-  // 切换主题
-  const toggleTheme = () => {
-    const newMode = mode === 'light' ? 'dark' : 'light'
-    setMode(newMode)
-    setThemeMode(newMode)
-  }
+  // 处理主题变化
+  useEffect(() => {
+    if (mounted) {
+      setThemeMode(mode)
+    }
+  }, [mode, mounted])
 
   if (!mounted) return null
 
@@ -43,7 +42,7 @@ export function ThemeSwitch() {
     <Button
       variant="ghost"
       size="icon"
-      onClick={toggleTheme}
+      onClick={() => setMode(isDark ? 'light' : 'dark')}
       className="w-9 h-9 rounded-lg hover:bg-accent transition-colors"
       title={isDark ? '切换到亮色主题' : '切换到暗色主题'}
     >
