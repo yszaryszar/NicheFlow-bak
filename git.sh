@@ -27,8 +27,9 @@ echo "正在将更改推送到远程 main 分支..."
 git push origin $main_branch
 
 # 清理分支（可选）
-read -p "是否要删除本地功能分支 '$current_branch'? (y/n): " delete_branch
-if [ "$delete_branch" == "y" ]; then
+read -p "是否要删除本地功能分支 '$current_branch'? (y/[n]): " delete_branch
+delete_branch=${delete_branch:-y} # 默认值设为 'y'
+if [[ "$delete_branch" == "y" || "$delete_branch" == "Y" ]]; then
     echo "正在删除本地功能分支..."
     git branch -d $current_branch
 else
