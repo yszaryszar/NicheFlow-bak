@@ -16,7 +16,38 @@ export const clerkAppearance = {
     colorDanger: '#ef4444',
     colorSuccess: '#22c55e',
   },
-}
+  elements: {
+    logoImage: {
+      filter: 'none',
+    },
+    formButtonPrimary: {
+      backgroundColor: '#10b981',
+      '&:hover': {
+        backgroundColor: '#059669',
+      },
+    },
+    card: {
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+      borderRadius: '12px',
+    },
+    socialButtonsIconButton: {
+      border: '1px solid #e5e7eb',
+      '&:hover': {
+        backgroundColor: '#f9fafb',
+      },
+    },
+    footer: {
+      '& + div': {
+        display: 'none',
+      },
+    },
+  },
+  layout: {
+    logoPlacement: 'inside' as const,
+    logoImageUrl: '/logo.svg',
+    socialButtonsVariant: 'iconButton' as const,
+  },
+} as const
 
 // 语言映射
 const localizationMap = {

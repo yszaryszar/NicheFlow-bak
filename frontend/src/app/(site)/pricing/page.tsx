@@ -1,9 +1,11 @@
 'use client'
 
-import { Button, Card, Col, Row, Typography, List } from 'antd'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import Link from 'next/link'
-
-const { Title, Paragraph, Text } = Typography
+import { SignInButton } from '@clerk/nextjs'
+import { Check } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const pricingPlans = [
   {
@@ -51,52 +53,66 @@ export default function PricingPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-16">
-        <Title level={1}>选择适合您的方案</Title>
-        <Paragraph className="text-lg">我们提供灵活的定价方案，满足不同规模企业的需求</Paragraph>
+        <h1 className="text-4xl font-bold mb-4">选择适合您的方案</h1>
+        <p className="text-xl text-gray-600">我们提供灵活的定价方案，满足不同规模企业的需求</p>
       </div>
 
-      <Row gutter={[24, 24]} justify="center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {pricingPlans.map(plan => (
-          <Col xs={24} sm={12} lg={8} key={plan.title}>
-            <Card
-              className={`h-full ${plan.popular ? 'border-primary' : ''}`}
-              title={
-                <div className="text-center">
-                  <Title level={3}>{plan.title}</Title>
-                  <div className="mt-4">
-                    <Text className="text-3xl font-bold">{plan.price}</Text>
-                    <Text className="text-gray-500">{plan.period}</Text>
-                  </div>
+          <Card
+            key={plan.title}
+            className={cn('relative overflow-hidden', plan.popular && 'border-emerald-500')}
+          >
+            {plan.popular && (
+              <div className="absolute top-0 right-0 bg-emerald-500 text-white px-4 py-1 text-sm">
+                推荐
+              </div>
+            )}
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold">{plan.title}</h3>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">{plan.price}</span>
+                  <span className="text-gray-500">{plan.period}</span>
                 </div>
-              }
-            >
-              <List
-                dataSource={plan.features}
-                renderItem={item => (
-                  <List.Item>
-                    <Text>{item}</Text>
-                  </List.Item>
-                )}
-                className="mb-8"
-              />
-              <div className="text-center">
-                <Link href={plan.href}>
-                  <Button type={plan.popular ? 'primary' : 'default'} size="large">
+              </div>
+
+              <ul className="space-y-4 mb-8">
+                {plan.features.map(feature => (
+                  <li key={feature} className="flex items-center text-gray-600">
+                    <Check className="h-5 w-5 text-emerald-500 mr-2 flex-shrink-0" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {plan.href.includes('contact') ? (
+                <Button className="w-full" asChild>
+                  <Link href={plan.href}>{plan.buttonText}</Link>
+                </Button>
+              ) : (
+                <SignInButton mode="modal">
+                  <Button
+                    className={cn(
+                      'w-full',
+                      plan.popular && '!bg-emerald-500 hover:!bg-emerald-600'
+                    )}
+                  >
                     {plan.buttonText}
                   </Button>
-                </Link>
-              </div>
-            </Card>
-          </Col>
+                </SignInButton>
+              )}
+            </div>
+          </Card>
         ))}
-      </Row>
+      </div>
 
       <div className="text-center mt-16">
-        <Title level={2}>需要更多信息？</Title>
-        <Paragraph className="text-lg mb-8">我们的团队随时为您提供帮助，解答您的疑问</Paragraph>
-        <Link href="/contact">
-          <Button size="large">联系我们</Button>
-        </Link>
+        <h2 className="text-3xl font-bold mb-4">需要更多信息？</h2>
+        <p className="text-xl text-gray-600 mb-8">我们的团队随时为您提供帮助，解答您的疑问</p>
+        <Button variant="outline" asChild>
+          <Link href="/contact">联系我们</Link>
+        </Button>
       </div>
     </div>
   )

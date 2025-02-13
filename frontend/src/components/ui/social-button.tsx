@@ -1,68 +1,81 @@
 'use client'
 
-import { Button } from 'antd'
+import { Button } from './button'
+import { cn } from '@/lib/utils'
 import { useSignIn } from '@clerk/nextjs'
 import Image from 'next/image'
 import { useState } from 'react'
 
-interface SocialButtonProps {
-  provider: 'google' | 'github'
-  className?: string
+interface SocialButtonConfig {
+  provider: 'oauth_google' | 'oauth_github'
+  label: string
+  icon: string
+  bgColor: string
+  textColor: string
+  borderColor: string
 }
 
-const providerConfig = {
+const socialConfigs: Record<string, SocialButtonConfig> = {
   google: {
-    name: 'Google',
+    provider: 'oauth_google',
+    label: '使用 Google 账号登录',
     icon: '/icons/google.svg',
-    bgColor: 'bg-white hover:bg-gray-50',
-    textColor: 'text-gray-700',
+    bgColor: 'bg-white',
+    textColor: 'text-gray-600',
     borderColor: 'border border-gray-300',
   },
   github: {
-    name: 'GitHub',
+    provider: 'oauth_github',
+    label: '使用 GitHub 账号登录',
     icon: '/icons/github.svg',
-    bgColor: 'bg-[#24292F] hover:bg-[#24292F]/90',
+    bgColor: 'bg-gray-900',
     textColor: 'text-white',
-    borderColor: 'border-transparent',
+    borderColor: 'border border-gray-700',
   },
 }
 
-export function SocialButton({ provider, className = '' }: SocialButtonProps) {
-  const [loading, setLoading] = useState(false)
+interface SocialButtonProps {
+  type: keyof typeof socialConfigs
+  className?: string
+}
+
+export function SocialButton({ type, className = '' }: SocialButtonProps) {
   const { signIn, isLoaded } = useSignIn()
-  const config = providerConfig[provider]
+  const [isLoading, setIsLoading] = useState(false)
+  const config = socialConfigs[type]
 
   const handleSignIn = async () => {
-    if (!isLoaded) return
+    if (!isLoaded || !signIn) return
     try {
-      setLoading(true)
+      setIsLoading(true)
       await signIn.authenticateWithRedirect({
-        strategy: `oauth_${provider}`,
-        redirectUrl: '/dashboard',
-        redirectUrlComplete: '/dashboard',
+        strategy: config.provider,
+        redirectUrl: '/sso-callback',
+        redirectUrlComplete: '/',
       })
-    } catch (error) {
-      console.error('登录错误:', error)
+    } catch (err) {
+      console.error('OAuth 错误:', err)
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   return (
     <Button
-      size="large"
-      className={`w-full flex items-center justify-center space-x-2 ${config.bgColor} ${config.textColor} ${config.borderColor} ${className}`}
+      variant="outline"
       onClick={handleSignIn}
-      loading={loading}
+      className={cn(
+        'w-full flex items-center justify-center gap-2',
+        config.bgColor,
+        config.textColor,
+        config.borderColor,
+        className,
+        isLoading && 'opacity-50 cursor-not-allowed'
+      )}
+      disabled={isLoading}
     >
-      <Image
-        src={config.icon}
-        alt={`${config.name} logo`}
-        width={20}
-        height={20}
-        className="mr-2"
-      />
-      <span>使用 {config.name} 账号登录</span>
+      <Image src={config.icon} alt={config.label} width={20} height={20} />
+      {config.label}
     </Button>
   )
 }

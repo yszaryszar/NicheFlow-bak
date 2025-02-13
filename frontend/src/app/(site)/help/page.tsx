@@ -1,10 +1,21 @@
 'use client'
 
-import { Button, Card, Col, Row, Typography, Collapse, Form, Input } from 'antd'
-import { SendOutlined } from '@ant-design/icons'
-
-const { Title, Paragraph } = Typography
-const { TextArea } = Input
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { TextArea } from '@/components/ui/input'
+import { Collapse, CollapseContent, CollapseItem, CollapseTrigger } from '@/components/ui/collapse'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 
 const faqs = [
   {
@@ -39,88 +50,113 @@ const faqs = [
   },
 ]
 
-interface ContactFormValues {
-  name: string
-  email: string
-  message: string
-}
+const formSchema = z.object({
+  name: z.string().min(2, '姓名至少需要2个字符'),
+  email: z.string().email('请输入有效的邮箱地址'),
+  message: z.string().min(10, '问题描述至少需要10个字符'),
+})
+
+type FormValues = z.infer<typeof formSchema>
 
 export default function HelpPage() {
-  const [form] = Form.useForm<ContactFormValues>()
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      message: '',
+    },
+  })
 
-  const handleSubmit = (values: ContactFormValues) => {
+  const onSubmit = (values: FormValues) => {
     console.log('提交的表单数据:', values)
-    // TODO: 实现表单提交逻辑
-    form.resetFields()
+    form.reset()
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-16">
-        <Title level={1}>帮助中心</Title>
-        <Paragraph className="text-lg">查找常见问题的解答，或直接联系我们获取支持</Paragraph>
+        <h1 className="text-4xl font-bold mb-4">帮助中心</h1>
+        <p className="text-xl text-gray-600">查找常见问题的解答，或直接联系我们获取支持</p>
       </div>
 
-      <Row gutter={[24, 24]}>
-        <Col xs={24} lg={16}>
-          <Title level={2} className="mb-8">
-            常见问题
-          </Title>
-          <Collapse
-            items={faqs.map((faq, index) => ({
-              key: index,
-              label: faq.question,
-              children: <Paragraph>{faq.answer}</Paragraph>,
-            }))}
-            className="mb-8"
-          />
-          <Paragraph className="text-center mt-8">
-            没有找到您需要的答案？
-            <Button type="link" href="#contact-form">
-              联系我们获取帮助
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <h2 className="text-2xl font-bold mb-8">常见问题</h2>
+          <Collapse type="single" collapsible>
+            {faqs.map((faq, index) => (
+              <CollapseItem key={index} value={`item-${index}`}>
+                <CollapseTrigger>{faq.question}</CollapseTrigger>
+                <CollapseContent>
+                  <p className="text-gray-600">{faq.answer}</p>
+                </CollapseContent>
+              </CollapseItem>
+            ))}
+          </Collapse>
+          <div className="text-center mt-8">
+            <p className="mb-4">没有找到您需要的答案？</p>
+            <Button variant="link" asChild>
+              <a href="#contact-form">联系我们获取帮助</a>
             </Button>
-          </Paragraph>
-        </Col>
+          </div>
+        </div>
 
-        <Col xs={24} lg={8}>
-          <Card id="contact-form">
-            <Title level={2} className="mb-8">
-              联系我们
-            </Title>
-            <Form form={form} layout="vertical" onFinish={handleSubmit}>
-              <Form.Item
-                name="name"
-                label="姓名"
-                rules={[{ required: true, message: '请输入您的姓名' }]}
-              >
-                <Input placeholder="请输入您的姓名" />
-              </Form.Item>
-              <Form.Item
-                name="email"
-                label="邮箱"
-                rules={[
-                  { required: true, message: '请输入您的邮箱' },
-                  { type: 'email', message: '请输入有效的邮箱地址' },
-                ]}
-              >
-                <Input placeholder="请输入您的邮箱" />
-              </Form.Item>
-              <Form.Item
-                name="message"
-                label="问题描述"
-                rules={[{ required: true, message: '请描述您的问题' }]}
-              >
-                <TextArea placeholder="请详细描述您遇到的问题" rows={4} showCount maxLength={500} />
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit" icon={<SendOutlined />} block>
+        <div>
+          <Card className="p-6" id="contact-form">
+            <h2 className="text-2xl font-bold mb-8">联系我们</h2>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>姓名</FormLabel>
+                      <FormControl>
+                        <Input placeholder="请输入您的姓名" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>邮箱</FormLabel>
+                      <FormControl>
+                        <Input placeholder="请输入您的邮箱" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>问题描述</FormLabel>
+                      <FormControl>
+                        <TextArea
+                          placeholder="请详细描述您遇到的问题"
+                          className="min-h-[120px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full">
                   提交
                 </Button>
-              </Form.Item>
+              </form>
             </Form>
           </Card>
-        </Col>
-      </Row>
+        </div>
+      </div>
     </div>
   )
 }

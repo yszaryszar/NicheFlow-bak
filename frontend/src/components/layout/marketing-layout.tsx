@@ -49,7 +49,7 @@ export function MarketingLayout({ children }: MarketingLayoutProps) {
       </header>
 
       {/* 主要内容 */}
-      <main className="mt-16">{children}</main>
+      <main>{children}</main>
 
       {/* 页脚 */}
       <footer className="bg-gray-50">

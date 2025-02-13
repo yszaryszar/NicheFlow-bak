@@ -1,9 +1,8 @@
 'use client'
 
-import { Anchor, Card, Col, Row, Typography, Button } from 'antd'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import Link from 'next/link'
-
-const { Title, Paragraph } = Typography
 
 const docSections = [
   {
@@ -65,47 +64,48 @@ const docSections = [
 export default function DocsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <Row gutter={24}>
-        <Col xs={24} lg={6}>
-          <Anchor
-            items={docSections.map(section => ({
-              key: section.id,
-              href: `#${section.id}`,
-              title: section.title,
-            }))}
-            className="bg-white p-4 rounded-lg"
-          />
-        </Col>
-        <Col xs={24} lg={18}>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* 侧边导航 */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-20 space-y-2 bg-white p-4 rounded-lg">
+            {docSections.map(section => (
+              <a
+                key={section.id}
+                href={`#${section.id}`}
+                className="block py-2 text-gray-600 hover:text-emerald-600 transition-colors"
+              >
+                {section.title}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* 主要内容 */}
+        <div className="lg:col-span-3">
           {docSections.map(section => (
             <div key={section.id} id={section.id} className="mb-16">
-              <Title level={2} className="mb-8">
-                {section.title}
-              </Title>
-              <Row gutter={[16, 16]}>
+              <h2 className="text-3xl font-bold mb-8">{section.title}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {section.content.map(item => (
-                  <Col xs={24} md={12} key={item.title}>
-                    <Card title={item.title}>
-                      <Paragraph>{item.text}</Paragraph>
-                    </Card>
-                  </Col>
+                  <Card key={item.title} className="p-6">
+                    <h3 className="text-xl font-semibold mb-4">{item.title}</h3>
+                    <p className="text-gray-600">{item.text}</p>
+                  </Card>
                 ))}
-              </Row>
+              </div>
             </div>
           ))}
-        </Col>
-      </Row>
+        </div>
+      </div>
 
       <div className="text-center mt-16">
-        <Title level={2}>需要帮助？</Title>
-        <Paragraph className="text-lg mb-8">
+        <h2 className="text-3xl font-bold mb-4">需要帮助？</h2>
+        <p className="text-xl text-gray-600 mb-8">
           如果您在使用过程中遇到任何问题，请随时联系我们的支持团队
-        </Paragraph>
-        <Link href="/help">
-          <Button type="primary" size="large">
-            获取支持
-          </Button>
-        </Link>
+        </p>
+        <Button asChild>
+          <Link href="/help">获取支持</Link>
+        </Button>
       </div>
     </div>
   )
