@@ -66,10 +66,10 @@ export default function RootPage() {
                     alt="AI"
                     width={24}
                     height={24}
-                    className="text-primary transition-base"
+                    className="text-primary"
                   />
                 </div>
-                <h3 className="text-xl font-semibold mb-4">智能内容生成</h3>
+                <h3 className="text-xl font-semibold mb-4 text-foreground">智能内容生成</h3>
                 <p className="text-gradient-muted">
                   基于先进的AI模型，自动生成高质量、原创的内容，满足不同平台的需求
                 </p>
@@ -81,10 +81,10 @@ export default function RootPage() {
                     alt="Platform"
                     width={24}
                     height={24}
-                    className="text-primary transition-base"
+                    className="text-primary"
                   />
                 </div>
-                <h3 className="text-xl font-semibold mb-4">多平台管理</h3>
+                <h3 className="text-xl font-semibold mb-4 text-foreground">多平台管理</h3>
                 <p className="text-gradient-muted">
                   一站式管理多个社交媒体平台，提高内容发布效率，实现统一管理
                 </p>
@@ -96,10 +96,10 @@ export default function RootPage() {
                     alt="Analytics"
                     width={24}
                     height={24}
-                    className="text-primary transition-base"
+                    className="text-primary"
                   />
                 </div>
-                <h3 className="text-xl font-semibold mb-4">数据分析</h3>
+                <h3 className="text-xl font-semibold mb-4 text-foreground">数据分析</h3>
                 <p className="text-gradient-muted">深入分析内容表现，获取关键指标，优化内容策略</p>
               </div>
             </div>
