@@ -31,9 +31,13 @@ export const clerkAppearance = {
       borderRadius: '12px',
     },
     socialButtonsIconButton: {
-      border: '1px solid #e5e7eb',
+      border: '1px solid var(--border)',
+      backgroundColor: 'var(--background)',
       '&:hover': {
-        backgroundColor: '#f9fafb',
+        backgroundColor: 'var(--accent)',
+      },
+      '& svg': {
+        filter: 'var(--foreground-filter)',
       },
     },
     footer: {
