@@ -30,7 +30,7 @@ type SidebarItem =
 
 const sidebarItems: SidebarItem[] = [
   {
-    key: '/dashboard',
+    key: '/',
     icon: <RiDashboardLine className="text-lg" />,
     labelKey: 'dashboard.menu.workspace',
   },

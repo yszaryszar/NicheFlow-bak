@@ -13,6 +13,7 @@ import {
 } from './dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from './avatar'
 import { useTranslation } from 'react-i18next'
+import { useState } from 'react'
 
 interface UserMenuProps {
   theme?: 'light' | 'dark'
@@ -23,6 +24,7 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
   const { user } = useUser()
   const { signOut } = useClerk()
   const { t } = useTranslation('common')
+  const [isOpen, setIsOpen] = useState(false)
 
   if (!user) {
     return (
@@ -40,8 +42,12 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger
+        asChild
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => setIsOpen(false)}
+      >
         <div className="flex items-center space-x-2 cursor-pointer">
           <Avatar>
             <AvatarImage src={user.imageUrl} alt={user.fullName || user.username || ''} />
@@ -58,7 +64,11 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
           </span>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent
+        align="end"
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => setIsOpen(false)}
+      >
         <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
           {t('userMenu.profile')}
         </DropdownMenuItem>
