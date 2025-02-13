@@ -12,18 +12,18 @@ interface AuthProviderProps {
 // Clerk 主题配置
 export const clerkAppearance = {
   variables: {
-    colorPrimary: '#10b981',
-    colorDanger: '#ef4444',
-    colorSuccess: '#22c55e',
+    colorPrimary: 'hsl(162 47% 38%)',
+    colorDanger: 'hsl(0 84.2% 60.2%)',
+    colorSuccess: 'hsl(142 71% 45%)',
   },
   elements: {
     logoImage: {
       filter: 'none',
     },
     formButtonPrimary: {
-      backgroundColor: '#10b981',
+      backgroundColor: 'hsl(162 47% 38%)',
       '&:hover': {
-        backgroundColor: '#059669',
+        backgroundColor: 'hsl(162 47% 32%)',
       },
     },
     card: {
@@ -34,7 +34,8 @@ export const clerkAppearance = {
       border: '1px solid var(--border)',
       backgroundColor: 'var(--background)',
       '&:hover': {
-        backgroundColor: 'var(--accent)',
+        backgroundColor: 'hsl(var(--primary) / 0.1)',
+        borderColor: 'hsl(var(--primary))',
       },
       '& svg': {
         filter: 'var(--foreground-filter)',
