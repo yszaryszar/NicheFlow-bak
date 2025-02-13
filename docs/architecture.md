@@ -563,42 +563,77 @@ export function useAuth() {
 
 ### 3.1 配色方案
 
-#### 主色调
-- 主色：`#10b981` (翡翠绿)
-- 强调色：`#34d399` (浅绿)
-- 辅助色：`#f9fafb` (淡灰)
+#### 主题色
+```css
+:root {
+  /* 亮色模式 */
+  --primary: 230 84% 54%;     /* 主题蓝色 #4F46E5 */
+  --primary-hover: 230 84% 48%;
+  --accent: 230 84% 65%;      /* 强调色 */
+  --background: 0 0% 100%;    /* 纯白背景 */
+  --foreground: 230 25% 12%;  /* 深色文本 */
+  --muted: 230 25% 96%;       /* 浅灰背景 */
+  --muted-foreground: 230 25% 40%; /* 次要文本 */
+  --border: 230 25% 92%;      /* 边框颜色 */
+}
 
-#### 亮色模式
-- 导航栏：`#ffffff` 配合磨砂玻璃效果 (`bg-white/80 backdrop-blur-md`)
-- 主要文本：`#111827`
-- 次要文本：`#6b7280`
-- 边框颜色：`#e5e7eb`
+.dark {
+  /* 暗色模式 */
+  --primary: 230 70% 60%;     /* 亮蓝色 */
+  --primary-hover: 230 70% 55%;
+  --accent: 230 70% 70%;      /* 亮色强调 */
+  --background: 230 30% 11%;  /* 深色背景 */
+  --foreground: 230 10% 98%;  /* 浅色文本 */
+  --muted: 230 30% 16%;       /* 深灰背景 */
+  --muted-foreground: 230 25% 65%; /* 次要文本 */
+  --border: 230 30% 16%;      /* 边框颜色 */
+}
+```
 
-#### 暗色模式
-- 导航栏：`#064e3b` (深绿)
-- 主色：保持 `#10b981`
-- 背景：`#042f2e` (深绿灰)
-- 卡片背景：`#064e3b`
+#### 颜色应用规范
 
-### 3.2 使用规范
+1. Logo 和品牌元素
+   - Logo 图标和文字：使用 `text-primary`
+   - 品牌装饰元素：使用 `text-primary` 或其透明度变体
 
-1. 导航栏
-   - 亮色模式：白色背景 + 磨砂玻璃效果
-   - 暗色模式：深绿色背景
-   - 固定在顶部，半透明效果
+2. 导航和交互元素
+   - 主导航链接：默认 `text-muted-foreground`，悬浮和激活状态 `text-primary`
+   - 按钮：主要按钮使用 `bg-primary text-primary-foreground`
+   - 次要按钮：`bg-secondary text-secondary-foreground`
+   - 图标按钮：默认继承文本颜色，悬浮状态使用 `text-primary`
 
-2. 主色应用
-   - 按钮背景色
-   - 重要链接和图标
-   - 强调文本
-   - 交互元素
+3. 内容和文本
+   - 主要文本：`text-foreground`
+   - 次要文本：`text-muted-foreground`
+   - 标题：`text-foreground` 配合适当的字重
+   - 链接：默认 `text-muted-foreground`，悬浮状态 `text-primary`
 
-3. 辅助色应用
-   - 页面背景
-   - 分割线
-   - 次要元素
+4. 背景层级
+   - 页面背景：`bg-background`
+   - 卡片背景：`bg-card`
+   - 弹出层：`bg-popover` 配合 `backdrop-blur-md`
+   - 悬浮层：`bg-accent/10`
 
-4. 强调色应用
-   - 悬浮状态
-   - 选中状态
-   - 成功状态提示
+5. 状态和反馈
+   - 成功：`text-emerald-500` (亮色) / `text-emerald-400` (暗色)
+   - 错误：`text-red-500` (亮色) / `text-red-400` (暗色)
+   - 警告：`text-amber-500` (亮色) / `text-amber-400` (暗色)
+   - 信息：`text-blue-500` (亮色) / `text-blue-400` (暗色)
+
+6. 特殊效果
+   - 磨砂玻璃效果：`bg-background/80 backdrop-blur-md`
+   - 渐变背景：`bg-gradient-to-b from-background to-accent/10`
+   - 投影效果：`shadow-md` 配合 `border-border`
+
+7. 暗色模式适配
+   - 自动反转：使用 CSS 变量和 Tailwind 的暗色模式类
+   - 对比度：确保文本和背景的对比度符合 WCAG 2.1 标准
+   - 过渡：添加 `transition-colors` 实现平滑切换
+
+8. 图表和数据可视化
+   - 主要数据：`text-primary`
+   - 次要数据：`text-muted-foreground`
+   - 图表颜色：使用 `--chart-1` 到 `--chart-5` 变量
+
+### 3.2 响应式设计
+// ... 其他内容保持不变 ...

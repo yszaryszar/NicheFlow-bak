@@ -91,7 +91,7 @@
 
 /* 覆盖 Ant Design 默认链接样式 */
 .css-dev-only-do-not-override-490rne a {
-  color: #6b7280 !important;
+  @apply text-muted-foreground !important;
   text-decoration: none !important;
   background-color: transparent !important;
   outline: none !important;
@@ -100,12 +100,12 @@
 }
 
 .css-dev-only-do-not-override-490rne a:hover {
-  color: #059669 !important;
+  @apply text-primary !important;
 }
 
 /* 通用覆盖，以防类名变化 */
 :where(.css-dev-only-do-not-override-*) a {
-  color: #6b7280 !important;
+  @apply text-muted-foreground !important;
   text-decoration: none !important;
   background-color: transparent !important;
   outline: none !important;
@@ -114,7 +114,7 @@
 }
 
 :where(.css-dev-only-do-not-override-*) a:hover {
-  color: #059669 !important;
+  @apply text-primary !important;
 }
 
 /* 自定义链接样式 */

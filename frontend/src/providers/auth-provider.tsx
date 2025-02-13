@@ -18,7 +18,8 @@ export const clerkAppearance = {
   },
   elements: {
     logoImage: {
-      filter: 'none',
+      filter:
+        'brightness(0) saturate(100%) invert(27%) sepia(91%) saturate(1920%) hue-rotate(227deg) brightness(98%) contrast(96%)',
     },
     formButtonPrimary: {
       backgroundColor: 'hsl(230 84% 54%)',
@@ -53,6 +54,18 @@ export const clerkAppearance = {
     socialButtonsVariant: 'iconButton' as const,
   },
 } as const
+
+// 暗色主题配置
+export const darkAppearance = {
+  ...clerkAppearance,
+  elements: {
+    ...clerkAppearance.elements,
+    logoImage: {
+      filter:
+        'brightness(0) saturate(100%) invert(46%) sepia(98%) saturate(1932%) hue-rotate(218deg) brightness(95%) contrast(93%)',
+    },
+  },
+}
 
 // 语言映射
 const localizationMap = {
@@ -135,7 +148,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     <ClerkProvider
       localization={localization}
       appearance={{
-        ...clerkAppearance,
+        ...(isDark ? darkAppearance : clerkAppearance),
         baseTheme: isDark ? dark : undefined,
       }}
       afterSignInUrl="/"
