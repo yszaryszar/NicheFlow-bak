@@ -21,7 +21,6 @@ export default function SignInPage() {
             socialButtonsVariant: 'blockButton',
           },
         }}
-        redirectUrl="/dashboard"
         signUpUrl="/sign-up"
       />
     </div>

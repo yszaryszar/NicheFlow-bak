@@ -1,3 +1,4 @@
+// Package handler 提供 HTTP 请求处理器
 package handler
 
 import (
@@ -10,19 +11,29 @@ import (
 	"github.com/yszaryszar/NicheFlow/backend/pkg/response"
 )
 
-// UserHandler 用户处理器
+// UserHandler 处理用户相关的 HTTP 请求
 type UserHandler struct {
 	userService *service.UserService
 }
 
-// NewUserHandler 创建用户处理器实例
+// NewUserHandler 创建一个新的用户处理器实例
 func NewUserHandler() *UserHandler {
 	return &UserHandler{
 		userService: service.NewUserService(),
 	}
 }
 
-// GetProfile 获取用户资料
+// GetProfile godoc
+// @Summary 获取用户个人资料
+// @Description 获取当前登录用户的详细个人资料信息
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Security ClerkAuth
+// @Success 200 {object} model.User "用户信息"
+// @Failure 401 {object} Response "未授权"
+// @Failure 500 {object} Response "服务器错误"
+// @Router /api/user/profile [get]
 func (h *UserHandler) GetProfile(c *gin.Context) {
 	clerkID := c.GetHeader("X-Clerk-User-Id")
 	if clerkID == "" {
@@ -44,7 +55,19 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 	response.Success(c, user)
 }
 
-// UpdateProfile 更新用户资料
+// UpdateProfile godoc
+// @Summary 更新用户个人资料
+// @Description 更新当前登录用户的个人资料信息
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Security ClerkAuth
+// @Param body body model.UpdateProfileRequest true "更新信息"
+// @Success 200 {object} Response "更新成功"
+// @Failure 400 {object} Response "请求参数错误"
+// @Failure 401 {object} Response "未授权"
+// @Failure 500 {object} Response "服务器错误"
+// @Router /api/user/profile [put]
 func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	clerkID := c.GetHeader("X-Clerk-User-Id")
 	if clerkID == "" {
@@ -70,7 +93,17 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	response.Success(c, gin.H{"message": "更新成功"})
 }
 
-// GetUsage 获取使用统计
+// GetUsage godoc
+// @Summary 获取用户使用统计
+// @Description 获取当前用户的 API 使用统计信息
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Security ClerkAuth
+// @Success 200 {object} Response{data=model.UsageStats} "使用统计信息"
+// @Failure 401 {object} Response "未授权"
+// @Failure 500 {object} Response "服务器错误"
+// @Router /api/user/usage [get]
 func (h *UserHandler) GetUsage(c *gin.Context) {
 	clerkID := c.GetHeader("X-Clerk-User-Id")
 	if clerkID == "" {
@@ -87,7 +120,17 @@ func (h *UserHandler) GetUsage(c *gin.Context) {
 	response.Success(c, usage)
 }
 
-// GetSubscription 获取订阅信息
+// GetSubscription godoc
+// @Summary 获取用户订阅信息
+// @Description 获取当前用户的订阅计划和状态信息
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Security ClerkAuth
+// @Success 200 {object} Response{data=model.SubscriptionInfo} "订阅信息"
+// @Failure 401 {object} Response "未授权"
+// @Failure 500 {object} Response "服务器错误"
+// @Router /api/user/subscription [get]
 func (h *UserHandler) GetSubscription(c *gin.Context) {
 	clerkID := c.GetHeader("X-Clerk-User-Id")
 	if clerkID == "" {
@@ -104,7 +147,17 @@ func (h *UserHandler) GetSubscription(c *gin.Context) {
 	response.Success(c, subscription)
 }
 
-// WebhookHandler 处理 Clerk Webhook
+// WebhookHandler godoc
+// @Summary 处理 Clerk Webhook
+// @Description 处理来自 Clerk 的用户相关 Webhook 事件
+// @Tags Webhook
+// @Accept json
+// @Produce json
+// @Param body body model.ClerkWebhookEvent true "Webhook 事件数据"
+// @Success 200 {object} Response "处理成功"
+// @Failure 400 {object} Response "请求参数错误"
+// @Failure 500 {object} Response "服务器错误"
+// @Router /api/webhook/clerk [post]
 func (h *UserHandler) WebhookHandler(c *gin.Context) {
 	var event struct {
 		Type string `json:"type"`

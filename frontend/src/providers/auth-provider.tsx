@@ -158,10 +158,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         ...(isDark ? darkAppearance : clerkAppearance),
         baseTheme: isDark ? dark : undefined,
       }}
-      afterSignInUrl="/"
-      afterSignUpUrl="/"
-      signInUrl="/"
-      signUpUrl="/"
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     >
       {children}
     </ClerkProvider>
