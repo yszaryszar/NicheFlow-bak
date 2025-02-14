@@ -38,8 +38,8 @@
   ],
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://api.nicheflow.com/:path*"
+      "source": "/v1/:path*",
+      "destination": "https://api.getnicheflow.com/v1/:path*"
     }
   ]
 }

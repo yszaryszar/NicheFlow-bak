@@ -40,7 +40,7 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 	middlewareManager.SetupMiddlewares(r)
 
 	// 健康检查路由
-	r.GET("/api/health", func(c *gin.Context) {
+	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"status":  "ok",
 			"version": cfg.App.Version,
@@ -71,13 +71,11 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 	// 创建处理器
 	userHandler := handler.NewUserHandler()
 
-	// API 路由组
-	// 所有 API 路由都在 /api 前缀下
-	api := r.Group("/api")
+	// 移除 /api 前缀
+	v1 := r.Group("/v1") // 使用版本号替代
 	{
 		// 用户相关路由
-		// 需要认证中间件保护
-		user := api.Group("/user")
+		user := v1.Group("/user")
 		user.Use(middlewareManager.GetAuthMiddleware())
 		{
 			// @Summary 获取用户个人资料
@@ -99,7 +97,7 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 
 		// Webhook 路由
 		// 不需要认证，用于处理外部服务回调
-		webhook := api.Group("/webhook")
+		webhook := v1.Group("/webhook")
 		{
 			// @Summary 处理 Clerk Webhook
 			// @Tags Webhook
@@ -108,7 +106,7 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 
 		// 管理员路由
 		// 需要认证和管理员角色
-		admin := api.Group("/admin")
+		admin := v1.Group("/admin")
 		admin.Use(
 			middlewareManager.GetAuthMiddleware(),
 			middlewareManager.GetRequireRoles("admin"),

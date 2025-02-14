@@ -2,105 +2,85 @@
 
 本目录包含 NicheFlow 项目的基础设施即代码 (IaC) 配置，使用 Terraform 管理 AWS 资源。
 
-## 架构概览
+## 基础设施架构
 
-项目采用多区域部署架构：
-- 香港区域 (ap-east-1)：主要服务亚太地区用户
-- 美国区域 (us-east-1)：主要服务北美地区用户
+项目采用多区域部署策略：
+- 香港区域 (ap-east-1)：服务亚太地区用户
+- 美国区域 (us-east-1)：服务北美地区用户
 
-### 核心组件
+### 主要组件
 
 1. **负载均衡 (ALB)**
    - 香港区域：`nicheflow-hk-alb`
    - 美国区域：`nicheflow-us-alb`
-   - 配置文件：`alb.tf`
+   - HTTPS 监听器（端口 443）
+   - HTTP 自动跳转至 HTTPS
 
 2. **SSL 证书 (ACM)**
    - 主域名：`api.getnicheflow.com`
-   - 区域子域名：`hk.api.getnicheflow.com`, `us.api.getnicheflow.com`
-   - 配置文件：`acm.tf`
+   - 区域子域名：
+     - 香港：`hk.api.getnicheflow.com`
+     - 美国：`us.api.getnicheflow.com`
+   - 自动验证和续期
 
 3. **DNS 路由 (Route53)**
-   - 基于地理位置的智能路由
-   - 自动故障转移
-   - 配置文件：`route53.tf`
+   - 基于地理位置的路由策略
+   - 健康检查和故障转移
+   - 自动 DNS 验证
 
 4. **监控告警 (CloudWatch)**
-   - 服务健康检查
-   - 证书到期监控
-   - 配置文件：`monitoring.tf`
-
-5. **安全组配置**
-   - ALB 安全组
-   - 配置文件：`security.tf`
-
-## 前置条件
-
-1. 安装 Terraform (推荐版本 >= 1.0.0)
-2. 配置 AWS 凭证
-3. 准备好以下资源：
-   - VPC ID (香港和美国区域)
-   - 公共子网 ID (每个区域至少 2 个)
-   - EC2 实例 ID (用于目标组)
+   - 目标组健康状态监控
+   - 证书到期提醒
+   - SNS 通知
 
 ## 配置说明
 
-1. **变量配置**
-   复制 `terraform.tfvars.example` 并重命名为 `terraform.tfvars`，填入必要的配置：
-   ```hcl
-   vpc_id_hk = "vpc-xxx"
-   vpc_id_us = "vpc-xxx"
-   public_subnets_hk = ["subnet-xxx", "subnet-xxx"]
-   public_subnets_us = ["subnet-xxx", "subnet-xxx"]
-   ec2_instance_id_hk = "i-xxx"
-   ec2_instance_id_us = "i-xxx"
+1. 复制示例配置文件：
+   ```bash
+   cp terraform.tfvars.example terraform.tfvars
    ```
 
-2. **监控配置**
-   在 `monitoring.tf` 中更新告警接收邮箱：
-   ```hcl
-   endpoint = "your-email@example.com"
-   ```
+2. 更新变量值：
+   - VPC ID
+   - 子网 ID
+   - EC2 实例 ID
 
-## 使用方法
-
-1. **初始化 Terraform**
+3. 初始化 Terraform：
    ```bash
    terraform init
    ```
 
-2. **查看变更计划**
+4. 检查计划：
    ```bash
    terraform plan
    ```
 
-3. **应用配置**
+5. 应用配置：
    ```bash
    terraform apply
    ```
 
-4. **销毁资源**（谨慎使用）
-   ```bash
-   terraform destroy
-   ```
-
 ## 注意事项
 
-1. **证书验证**
-   - 首次部署时需要在 AWS Console 中确认证书验证邮件
-   - 证书自动续期，但建议关注过期告警
+1. 证书验证
+   - 首次部署时证书验证可能需要 15-30 分钟
+   - 需要等待 DNS 记录传播完成
 
-2. **DNS 传播**
-   - DNS 变更可能需要最多 48 小时全球生效
-   - 建议使用 dig 或 nslookup 验证 DNS 记录
+2. 健康检查
+   - 确保后端服务正常运行
+   - 检查安全组配置
+   - 验证目标组设置
 
-3. **健康检查**
-   - 确保后端服务正确响应 `/health` 路径
-   - 健康检查失败会触发告警通知
+3. 成本优化
+   - 使用适当的实例类型
+   - 监控资源使用情况
+   - 及时清理未使用的资源
 
-4. **成本优化**
-   - ALB 和跨区域流量会产生费用
-   - 建议配置成本告警
+## 维护支持
+
+如有问题请联系：
+- 邮件：yszaryszar@gmail.com
+- 文档：[开发指南](../docs/development_guide.md)
 
 ## 文件结构
 
