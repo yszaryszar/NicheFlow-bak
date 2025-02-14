@@ -39,6 +39,14 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 	// 设置全局中间件
 	middlewareManager.SetupMiddlewares(r)
 
+	// 健康检查路由
+	r.GET("/api/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "ok",
+			"version": cfg.App.Version,
+		})
+	})
+
 	// 注册 Swagger 路由
 	// @title NicheFlow API
 	// @version 1.0
