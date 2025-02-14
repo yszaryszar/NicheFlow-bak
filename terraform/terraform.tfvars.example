@@ -1,0 +1,22 @@
+# 香港区域配置示例
+vpc_id_hk = "vpc-xxxxxxxx" # 香港区域的 VPC ID
+public_subnets_hk = [
+  "subnet-xxxxxxxx", # ap-east-1a 可用区的公共子网
+  "subnet-xxxxxxxx", # ap-east-1b 可用区的公共子网
+  "subnet-xxxxxxxx"  # ap-east-1c 可用区的公共子网
+]
+
+# 美国区域配置示例
+vpc_id_us = "vpc-xxxxxxxx" # 美国区域的 VPC ID
+public_subnets_us = [
+  "subnet-xxxxxxxx", # us-east-1a 可用区的公共子网
+  "subnet-xxxxxxxx", # us-east-1c 可用区的公共子网
+  "subnet-xxxxxxxx"  # us-east-1e 可用区的公共子网
+]
+
+# EC2 实例 ID 示例
+ec2_instance_id_hk = "i-xxxxxxxx"  # 香港区域的 EC2 实例 ID
+ec2_instance_id_us = "i-xxxxxxxx"  # 美国区域的 EC2 实例 ID
+
+# 告警通知配置示例
+alert_email = "your-email@example.com"  # 告警通知邮箱地址 
