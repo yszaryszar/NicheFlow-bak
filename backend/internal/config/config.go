@@ -33,6 +33,7 @@ type AppConfig struct {
 	Mode    string `mapstructure:"mode"`     // 运行模式（debug/release）
 	Port    int    `mapstructure:"port"`     // 服务端口
 	BaseURL string `mapstructure:"base_url"` // 基础 URL
+	Region  string `mapstructure:"region"`   // 运行区域（hk/us）
 }
 
 // DatabaseConfig 数据库配置
@@ -48,23 +49,26 @@ type DatabaseConfig struct {
 	MaxIdleConns    int    `mapstructure:"max_idle_conns"`    // 最大空闲连接数
 	MaxOpenConns    int    `mapstructure:"max_open_conns"`    // 最大打开连接数
 	ConnMaxLifetime string `mapstructure:"conn_max_lifetime"` // 连接最大生命周期
-	DBName          string `mapstructure:"dbname"`            // 数据库名称
 }
 
 // RedisConfig Redis 配置
 type RedisConfig struct {
-	Host      string `mapstructure:"host"`       // Redis 主机
-	Port      int    `mapstructure:"port"`       // Redis 端口
-	Password  string `mapstructure:"password"`   // Redis 密码
-	DB        int    `mapstructure:"db"`         // Redis 数据库编号
-	SSLTunnel bool   `mapstructure:"ssl_tunnel"` // 是否使用 SSL 隧道
-	TLSEnable bool   `mapstructure:"tls_enable"` // 是否启用 TLS
+	Host        string `mapstructure:"host"`          // Redis 主机
+	Port        int    `mapstructure:"port"`          // Redis 端口
+	Password    string `mapstructure:"password"`      // Redis 密码
+	DB          int    `mapstructure:"db"`            // Redis 数据库编号
+	SSLTunnel   bool   `mapstructure:"ssl_tunnel"`    // 是否使用 SSL 隧道
+	TLSEnable   bool   `mapstructure:"tls_enable"`    // 是否启用 TLS
+	TLSCertFile string `mapstructure:"tls_cert_file"` // TLS 证书文件
+	TLSKeyFile  string `mapstructure:"tls_key_file"`  // TLS 密钥文件
+	TLSCAFile   string `mapstructure:"tls_ca_file"`   // TLS CA 证书文件
 }
 
 // ClerkConfig Clerk 认证配置
 type ClerkConfig struct {
 	APIKey      string `mapstructure:"api_key"`      // Clerk API 密钥
 	FrontendAPI string `mapstructure:"frontend_api"` // Clerk 前端 API 密钥
+	WebhookKey  string `mapstructure:"webhook_key"`  // Webhook 密钥
 }
 
 // MiddlewareConfig 中间件配置
@@ -228,8 +232,13 @@ func bindEnvs(v *viper.Viper, prefix string) {
 //
 //	该方法根据配置生成 PostgreSQL 数据库连接字符串
 func (c *DatabaseConfig) GetDSN() string {
+	sslMode := "disable"
+	if c.SSLMode != "" {
+		sslMode = c.SSLMode
+	}
+
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode)
+		c.Host, c.Port, c.User, c.Password, c.Name, sslMode)
 }
 
 // GetRedisAddr 获取 Redis 连接地址

@@ -1,75 +1,36 @@
 app:
-  env: ${APP_ENV}
   name: NicheFlow
   version: 0.1.0
-  mode: ${APP_MODE}
-  port: ${APP_PORT}
   
 database:
-  driver: postgres
-  host: ${DB_HOST}
-  port: ${DB_PORT}
-  name: ${DB_NAME}
-  user: ${DB_USER}
-  password: ${DB_PASSWORD}
-  ssl_mode: ${DB_SSL_MODE}
-  ssl_tunnel: ${DB_SSL_TUNNEL}
   max_idle_conns: 10
   max_open_conns: 100
   conn_max_lifetime: 1h
 
-redis:
-  host: ${REDIS_HOST}
-  port: ${REDIS_PORT}
-  password: ${REDIS_PASSWORD}
-  db: ${REDIS_DB}
-  ssl_tunnel: ${REDIS_SSL_TUNNEL}
-  tls_enable: ${REDIS_TLS_ENABLE}
-
 openai:
-  api_key: ${OPENAI_API_KEY}
-  organization: ${OPENAI_ORG_ID}
   model: gpt-4-turbo-preview
   max_tokens: 2000
   temperature: 0.7
 
 anthropic:
-  api_key: ${ANTHROPIC_API_KEY}
   model: claude-3-opus
   max_tokens: 2000
   temperature: 0.7
 
-cors:
-  allowed_origins:
-    - ${CORS_ALLOWED_ORIGINS}
-  allowed_methods:
-    - GET
-    - POST
-    - PUT
-    - DELETE
-    - OPTIONS
-  allowed_headers:
-    - Authorization
-    - Content-Type
-  allow_credentials: true
-  max_age: 300
-
-clerk:
-  api_key: ${CLERK_API_KEY}
-  frontend_api: ${CLERK_FRONTEND_API}
-
 middleware:
   rate_limit:
-    enabled: ${MIDDLEWARE_RATE_LIMIT_ENABLED}
-    limit: ${MIDDLEWARE_RATE_LIMIT_LIMIT}
-    duration: ${MIDDLEWARE_RATE_LIMIT_DURATION}
+    enabled: true
+    limit: 100
+    duration: 1m
   cors:
-    allow_origins:
-      - ${MIDDLEWARE_CORS_ALLOW_ORIGINS}
     allow_methods:
-      - ${MIDDLEWARE_CORS_ALLOW_METHODS}
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
     allow_headers:
-      - ${MIDDLEWARE_CORS_ALLOW_HEADERS}
-    expose_headers: ${MIDDLEWARE_CORS_EXPOSE_HEADERS}
-    allow_credentials: ${MIDDLEWARE_CORS_ALLOW_CREDENTIALS}
-    max_age: ${MIDDLEWARE_CORS_MAX_AGE} 
+      - Authorization
+      - Content-Type
+      - X-Clerk-User-Id
+    max_age: 300 

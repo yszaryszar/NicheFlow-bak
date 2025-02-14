@@ -19,8 +19,8 @@ jobs:
       - name: Configure AWS credentials (HK)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_HK }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_HK }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-east-1
       
       - name: Login to Amazon ECR
@@ -42,12 +42,83 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST_HK }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY_HK }}
           script: |
+            # 复制配置文件
+            cat > config.prod.yaml << 'EOL'
+            app:
+              name: NicheFlow
+              version: 0.1.0
+              env: production
+              mode: release
+              port: 8080
+              base_url: https://api.getnicheflow.com
+              region: hk
+            
+            database:
+              driver: postgres
+              host: ${{ secrets.DB_HOST_HK }}
+              port: ${{ secrets.DB_PORT }}
+              name: ${{ secrets.DB_NAME }}
+              user: ${{ secrets.DB_USER }}
+              password: ${{ secrets.DB_PASSWORD }}
+              ssl_mode: require
+              max_idle_conns: 10
+              max_open_conns: 100
+              conn_max_lifetime: 1h
+            
+            redis:
+              host: ${{ secrets.REDIS_HOST_HK }}
+              port: ${{ secrets.REDIS_PORT }}
+              password: ${{ secrets.REDIS_PASSWORD }}
+              db: 0
+              tls_enable: true
+            
+            openai:
+              model: gpt-4-turbo-preview
+              max_tokens: 2000
+              temperature: 0.7
+            
+            anthropic:
+              model: claude-3-opus
+              max_tokens: 2000
+              temperature: 0.7
+            
+            middleware:
+              rate_limit:
+                enabled: true
+                limit: 100
+                duration: 1m
+              cors:
+                allow_origins:
+                  - https://getnicheflow.com
+                  - https://www.getnicheflow.com
+                allow_methods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allow_headers:
+                  - Authorization
+                  - Content-Type
+                  - X-Clerk-User-Id
+                max_age: 300
+            EOL
+            
+            # 设置环境变量
+            cat > .env << 'EOL'
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
+            ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+            CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
+            EOL
+            
+            # 拉取新镜像并重启服务
             docker pull ${{ steps.login-ecr-hk.outputs.registry }}/nicheflow-api:${{ github.sha }}
-            docker-compose down
-            echo "IMAGE_TAG=${{ github.sha }}" > .env
-            docker-compose up -d
+            docker compose down
+            echo "IMAGE_TAG=${{ github.sha }}" >> .env
+            docker compose up -d
 
   deploy-backend-us:
     name: Deploy Backend to US
@@ -60,8 +131,8 @@ jobs:
       - name: Configure AWS credentials (US)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_US }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_US }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
       
       - name: Login to Amazon ECR
@@ -83,12 +154,83 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST_US }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY_US }}
           script: |
+            # 复制配置文件
+            cat > config.prod.yaml << 'EOL'
+            app:
+              name: NicheFlow
+              version: 0.1.0
+              env: production
+              mode: release
+              port: 8080
+              base_url: https://api.getnicheflow.com
+              region: us
+            
+            database:
+              driver: postgres
+              host: ${{ secrets.DB_HOST_US }}
+              port: ${{ secrets.DB_PORT }}
+              name: ${{ secrets.DB_NAME }}
+              user: ${{ secrets.DB_USER }}
+              password: ${{ secrets.DB_PASSWORD }}
+              ssl_mode: require
+              max_idle_conns: 10
+              max_open_conns: 100
+              conn_max_lifetime: 1h
+            
+            redis:
+              host: ${{ secrets.REDIS_HOST_US }}
+              port: ${{ secrets.REDIS_PORT }}
+              password: ${{ secrets.REDIS_PASSWORD }}
+              db: 0
+              tls_enable: true
+            
+            openai:
+              model: gpt-4-turbo-preview
+              max_tokens: 2000
+              temperature: 0.7
+            
+            anthropic:
+              model: claude-3-opus
+              max_tokens: 2000
+              temperature: 0.7
+            
+            middleware:
+              rate_limit:
+                enabled: true
+                limit: 100
+                duration: 1m
+              cors:
+                allow_origins:
+                  - https://getnicheflow.com
+                  - https://www.getnicheflow.com
+                allow_methods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allow_headers:
+                  - Authorization
+                  - Content-Type
+                  - X-Clerk-User-Id
+                max_age: 300
+            EOL
+            
+            # 设置环境变量
+            cat > .env << 'EOL'
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
+            ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+            CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
+            EOL
+            
+            # 拉取新镜像并重启服务
             docker pull ${{ steps.login-ecr-us.outputs.registry }}/nicheflow-api:${{ github.sha }}
-            docker-compose down
-            echo "IMAGE_TAG=${{ github.sha }}" > .env
-            docker-compose up -d
+            docker compose down
+            echo "IMAGE_TAG=${{ github.sha }}" >> .env
+            docker compose up -d
 
   notify:
     needs: [deploy-backend-hk, deploy-backend-us]
