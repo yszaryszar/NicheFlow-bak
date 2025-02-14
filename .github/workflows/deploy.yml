@@ -2,31 +2,31 @@ name: Deploy NicheFlow Backend
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
-      - 'backend/**'
-      - '.github/workflows/**'
+      - "backend/**"
+      - ".github/workflows/**"
 
 jobs:
   deploy-backend-hk:
     name: Deploy Backend to Hong Kong
     runs-on: ubuntu-latest
     if: contains(github.event.head_commit.modified, 'backend/') || contains(github.event.head_commit.added, 'backend/')
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Configure AWS credentials (HK)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-east-1
-      
+
       - name: Login to Amazon ECR
         id: login-ecr-hk
         uses: aws-actions/amazon-ecr-login@v2
-      
+
       - name: Build and push Docker image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr-hk.outputs.registry }}
@@ -36,7 +36,7 @@ jobs:
           cd backend
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      
+
       - name: Deploy to EC2 (HK)
         uses: appleboy/ssh-action@master
         with:
@@ -51,10 +51,10 @@ jobs:
               version: 0.1.0
               env: production
               mode: release
-              port: 8080
+              port: 80
               base_url: https://api.getnicheflow.com
               region: hk
-            
+
             database:
               driver: postgres
               host: ${{ secrets.DB_HOST_HK }}
@@ -66,24 +66,24 @@ jobs:
               max_idle_conns: 10
               max_open_conns: 100
               conn_max_lifetime: 1h
-            
+
             redis:
               host: ${{ secrets.REDIS_HOST_HK }}
               port: ${{ secrets.REDIS_PORT }}
               password: ${{ secrets.REDIS_PASSWORD }}
               db: 0
               tls_enable: true
-            
+
             openai:
               model: gpt-4-turbo-preview
               max_tokens: 2000
               temperature: 0.7
-            
+
             anthropic:
               model: claude-3-opus
               max_tokens: 2000
               temperature: 0.7
-            
+
             middleware:
               rate_limit:
                 enabled: true
@@ -105,7 +105,7 @@ jobs:
                   - X-Clerk-User-Id
                 max_age: 300
             EOL
-            
+
             # 设置环境变量
             cat > .env << 'EOL'
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
@@ -113,7 +113,7 @@ jobs:
             ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
             CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
             EOL
-            
+
             # 拉取新镜像并重启服务
             docker pull ${{ steps.login-ecr-hk.outputs.registry }}/nicheflow-api:${{ github.sha }}
             docker compose down
@@ -124,21 +124,21 @@ jobs:
     name: Deploy Backend to US
     runs-on: ubuntu-latest
     if: contains(github.event.head_commit.modified, 'backend/') || contains(github.event.head_commit.added, 'backend/')
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Configure AWS credentials (US)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
-      
+
       - name: Login to Amazon ECR
         id: login-ecr-us
         uses: aws-actions/amazon-ecr-login@v2
-      
+
       - name: Build and push Docker image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr-us.outputs.registry }}
@@ -148,7 +148,7 @@ jobs:
           cd backend
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      
+
       - name: Deploy to EC2 (US)
         uses: appleboy/ssh-action@master
         with:
@@ -163,10 +163,10 @@ jobs:
               version: 0.1.0
               env: production
               mode: release
-              port: 8080
+              port: 80
               base_url: https://api.getnicheflow.com
               region: us
-            
+
             database:
               driver: postgres
               host: ${{ secrets.DB_HOST_US }}
@@ -178,24 +178,24 @@ jobs:
               max_idle_conns: 10
               max_open_conns: 100
               conn_max_lifetime: 1h
-            
+
             redis:
               host: ${{ secrets.REDIS_HOST_US }}
               port: ${{ secrets.REDIS_PORT }}
               password: ${{ secrets.REDIS_PASSWORD }}
               db: 0
               tls_enable: true
-            
+
             openai:
               model: gpt-4-turbo-preview
               max_tokens: 2000
               temperature: 0.7
-            
+
             anthropic:
               model: claude-3-opus
               max_tokens: 2000
               temperature: 0.7
-            
+
             middleware:
               rate_limit:
                 enabled: true
@@ -217,7 +217,7 @@ jobs:
                   - X-Clerk-User-Id
                 max_age: 300
             EOL
-            
+
             # 设置环境变量
             cat > .env << 'EOL'
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
@@ -225,7 +225,7 @@ jobs:
             ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
             CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
             EOL
-            
+
             # 拉取新镜像并重启服务
             docker pull ${{ steps.login-ecr-us.outputs.registry }}/nicheflow-api:${{ github.sha }}
             docker compose down
@@ -237,11 +237,26 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Notify deployment status
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_MESSAGE: |
-            Backend Deployment Status:
-            Hong Kong: ${{ needs.deploy-backend-hk.result }}
-            US: ${{ needs.deploy-backend-us.result }} 
+      - name: Send deployment notification email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: NicheFlow 后端部署状态通知
+          body: |
+            NicheFlow 后端部署状态报告：
+
+            香港区域: ${{ needs.deploy-backend-hk.result == 'success' && '✅ 部署成功' || '❌ 部署失败' }}
+            美国区域: ${{ needs.deploy-backend-us.result == 'success' && '✅ 部署成功' || '❌ 部署失败' }}
+
+            部署详情：
+            - 部署时间：${{ github.event.head_commit.timestamp }}
+            - 提交信息：${{ github.event.head_commit.message }}
+            - 提交作者：${{ github.event.head_commit.author.name }}
+            - 提交 SHA：${{ github.sha }}
+
+            如有部署失败，请及时检查相关日志和服务状态。
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: NicheFlow 部署系统 <${{ secrets.EMAIL_USERNAME }}>

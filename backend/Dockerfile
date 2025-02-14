@@ -46,7 +46,7 @@ USER nicheflow
 WORKDIR /etc/nicheflow
 
 # 暴露端口
-EXPOSE 8080
+EXPOSE 80
 
 # 启动命令
 CMD ["nicheflow-api"] 
