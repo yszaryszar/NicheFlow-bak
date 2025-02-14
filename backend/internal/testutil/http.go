@@ -6,10 +6,9 @@ import (
 	"strings"
 )
 
-// MockHTTPServer 创建模拟 HTTP 服务器
-func MockHTTPServer(handler http.HandlerFunc) *httptest.Server {
-	server := httptest.NewServer(handler)
-	return server
+// MockHTTPServer 创建通用的模拟 HTTP 服务器
+func MockHTTPServer(handler func(w http.ResponseWriter, r *http.Request)) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(handler))
 }
 
 // MockOAuthTokenServer 创建模拟 OAuth 令牌服务器

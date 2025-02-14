@@ -3,11 +3,12 @@
 import { Button } from './button'
 import { cn } from '@/lib/utils'
 import { useSignIn } from '@clerk/nextjs'
+import type { OAuthStrategy } from '@clerk/types'
 import Image from 'next/image'
 import { useState } from 'react'
 
 interface SocialButtonConfig {
-  provider: 'oauth_google' | 'oauth_github'
+  provider: OAuthStrategy
   label: string
   icon: string
   bgColor: string
@@ -54,7 +55,7 @@ export function SocialButton({ type, className = '' }: SocialButtonProps) {
         redirectUrlComplete: '/',
       })
     } catch (err) {
-      console.error('OAuth 错误:', err)
+      console.error('第三方登录错误:', err)
     } finally {
       setIsLoading(false)
     }

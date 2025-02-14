@@ -17,10 +17,7 @@ import (
 // 4. 处理模型关系
 //
 // 支持的模型：
-// - User: 用户模型
-// - Session: 会话模型
-// - Account: OAuth账号模型
-// - VerificationToken: 验证令牌模型
+// - User: 用户模型，存储用户基本信息和认证状态
 //
 // 返回:
 //   - error: 迁移过程中的错误，如果成功则为 nil
@@ -31,7 +28,6 @@ func AutoMigrate() error {
 	}
 
 	// 自动迁移表结构
-	// 按照依赖关系顺序执行迁移
 	err := db.AutoMigrate(
 		&User{}, // 用户表
 	)
