@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 确保脚本在任何命令失败时立即退出
+set -e 
+
 # 脚本开始，确保在功能分支上运行
 current_branch=$(git branch --show-current)
 develop_branch="develop"
@@ -12,6 +15,12 @@ git fetch origin $develop_branch
 echo "正在将当前分支变基到最新的 develop..."
 git rebase origin/$develop_branch
 
+# 检查 rebase 是否成功
+if [[ $? -ne 0 ]]; then
+    echo "变基失败，请解决冲突后重试。"
+    exit 1
+fi
+
 # 推送到 develop 分支
 echo "正在将当前分支推送到 develop 分支..."
 git push origin HEAD:$develop_branch --force-with-lease
@@ -22,6 +31,12 @@ git checkout $main_branch
 
 echo "正在将 develop 分支的最新更改合并到 main 分支..."
 git merge origin/$develop_branch --ff-only
+
+# 检查合并是否成功
+if [[ $? -ne 0 ]]; then
+    echo "合并到 main 分支失败。"
+    exit 1
+fi
 
 echo "正在将更改推送到远程 main 分支..."
 git push origin $main_branch
