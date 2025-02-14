@@ -20,11 +20,9 @@ type Config struct {
 	Redis      RedisConfig      `mapstructure:"redis"`      // Redis 配置
 	Clerk      ClerkConfig      `mapstructure:"clerk"`      // Clerk 认证配置
 	Middleware MiddlewareConfig `mapstructure:"middleware"` // 中间件配置
-	JWT        JWTConfig        `mapstructure:"jwt"`        // JWT 配置
 	OpenAI     OpenAIConfig     `mapstructure:"openai"`     // OpenAI 配置
 	Anthropic  AnthropicConfig  `mapstructure:"anthropic"`  // Anthropic 配置
 	CORS       CORSConfig       `mapstructure:"cors"`       // CORS 配置
-	OAuth      OAuthConfig      `mapstructure:"oauth"`      // OAuth 配置
 }
 
 // AppConfig 应用基础配置
@@ -92,13 +90,6 @@ type CORSConfig struct {
 	MaxAge           int      `mapstructure:"max_age"`           // 预检请求缓存时间
 }
 
-// JWTConfig JWT 配置
-type JWTConfig struct {
-	Secret string `mapstructure:"secret"` // JWT 密钥
-	Expire string `mapstructure:"expire"` // JWT 过期时间
-	Issuer string `mapstructure:"issuer"` // JWT 签发者
-}
-
 // OpenAIConfig OpenAI 配置
 type OpenAIConfig struct {
 	APIKey       string  `mapstructure:"api_key"`      // OpenAI API 密钥
@@ -114,27 +105,6 @@ type AnthropicConfig struct {
 	Model       string  `mapstructure:"model"`       // 使用的模型
 	MaxTokens   int     `mapstructure:"max_tokens"`  // 最大 token 数
 	Temperature float64 `mapstructure:"temperature"` // 温度参数
-}
-
-// OAuthConfig OAuth 配置
-type OAuthConfig struct {
-	BaseURL string `mapstructure:"base_url"` // OAuth 基础 URL
-	Google  struct {
-		ClientID     string   `mapstructure:"client_id"`     // Google 客户端 ID
-		ClientSecret string   `mapstructure:"client_secret"` // Google 客户端密钥
-		RedirectURI  string   `mapstructure:"redirect_uri"`  // 重定向 URI
-		Scopes       []string `mapstructure:"scopes"`        // 授权范围
-		TokenURL     string   `mapstructure:"token_url"`     // 令牌 URL
-		UserInfoURL  string   `mapstructure:"user_info_url"` // 用户信息 URL
-	} `mapstructure:"google"`
-	GitHub struct {
-		ClientID     string   `mapstructure:"client_id"`     // GitHub 客户端 ID
-		ClientSecret string   `mapstructure:"client_secret"` // GitHub 客户端密钥
-		RedirectURI  string   `mapstructure:"redirect_uri"`  // 重定向 URI
-		Scopes       []string `mapstructure:"scopes"`        // 授权范围
-		TokenURL     string   `mapstructure:"token_url"`     // 令牌 URL
-		UserInfoURL  string   `mapstructure:"user_info_url"` // 用户信息 URL
-	} `mapstructure:"github"`
 }
 
 var cfg *Config

@@ -26,11 +26,6 @@ redis:
   ssl_tunnel: ${REDIS_SSL_TUNNEL}
   tls_enable: ${REDIS_TLS_ENABLE}
 
-jwt:
-  secret: ${JWT_SECRET}
-  expire: ${JWT_EXPIRE}
-  issuer: nicheflow
-
 openai:
   api_key: ${OPENAI_API_KEY}
   organization: ${OPENAI_ORG_ID}
@@ -59,18 +54,22 @@ cors:
   allow_credentials: true
   max_age: 300
 
-oauth:
-  base_url: ${APP_BASE_URL}
-  google:
-    client_id: ${GOOGLE_CLIENT_ID}
-    client_secret: ${GOOGLE_CLIENT_SECRET}
-    scopes:
-      - openid
-      - profile
-      - email
-  github:
-    client_id: ${GITHUB_CLIENT_ID}
-    client_secret: ${GITHUB_CLIENT_SECRET}
-    scopes:
-      - user
-      - user:email 
+clerk:
+  api_key: ${CLERK_API_KEY}
+  frontend_api: ${CLERK_FRONTEND_API}
+
+middleware:
+  rate_limit:
+    enabled: ${MIDDLEWARE_RATE_LIMIT_ENABLED}
+    limit: ${MIDDLEWARE_RATE_LIMIT_LIMIT}
+    duration: ${MIDDLEWARE_RATE_LIMIT_DURATION}
+  cors:
+    allow_origins:
+      - ${MIDDLEWARE_CORS_ALLOW_ORIGINS}
+    allow_methods:
+      - ${MIDDLEWARE_CORS_ALLOW_METHODS}
+    allow_headers:
+      - ${MIDDLEWARE_CORS_ALLOW_HEADERS}
+    expose_headers: ${MIDDLEWARE_CORS_EXPOSE_HEADERS}
+    allow_credentials: ${MIDDLEWARE_CORS_ALLOW_CREDENTIALS}
+    max_age: ${MIDDLEWARE_CORS_MAX_AGE} 
