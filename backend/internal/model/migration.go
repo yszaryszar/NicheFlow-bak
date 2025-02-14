@@ -7,8 +7,8 @@ import (
 	"github.com/yszaryszar/NicheFlow/backend/pkg/database"
 )
 
-// AutoMigrate 自动迁移数据库结构
-// 该函数在应用启动时执行，确保数据库结构与模型定义同步
+// AutoMigrate 自动迁移数据库表结构
+// 根据模型定义自动创建或更新数据库表
 //
 // 执行以下操作：
 // 1. 检查数据库连接
@@ -33,10 +33,7 @@ func AutoMigrate() error {
 	// 自动迁移表结构
 	// 按照依赖关系顺序执行迁移
 	err := db.AutoMigrate(
-		&User{},              // 用户表
-		&Session{},           // 会话表
-		&Account{},           // OAuth账号表
-		&VerificationToken{}, // 验证令牌表
+		&User{}, // 用户表
 	)
 	if err != nil {
 		log.Printf("数据库迁移失败: %v", err)
