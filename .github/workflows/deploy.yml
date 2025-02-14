@@ -1,34 +1,13 @@
-name: Deploy NicheFlow
+name: Deploy NicheFlow Backend
 
 on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'frontend/**'
       - 'backend/**'
       - '.github/workflows/**'
 
 jobs:
-  deploy-frontend:
-    name: Deploy Frontend to Vercel
-    runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'frontend/') || contains(github.event.head_commit.added, 'frontend/')
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-      
-      - name: Deploy to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          cd frontend
-          vercel deploy --prod --token=$VERCEL_TOKEN
-
   deploy-backend-hk:
     name: Deploy Backend to Hong Kong
     runs-on: ubuntu-latest
@@ -112,7 +91,7 @@ jobs:
             docker-compose up -d
 
   notify:
-    needs: [deploy-frontend, deploy-backend-hk, deploy-backend-us]
+    needs: [deploy-backend-hk, deploy-backend-us]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -121,7 +100,6 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_MESSAGE: |
-            Deployment Status:
-            Frontend: ${{ needs.deploy-frontend.result }}
-            Backend (HK): ${{ needs.deploy-backend-hk.result }}
-            Backend (US): ${{ needs.deploy-backend-us.result }} 
+            Backend Deployment Status:
+            Hong Kong: ${{ needs.deploy-backend-hk.result }}
+            US: ${{ needs.deploy-backend-us.result }} 
