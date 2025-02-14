@@ -33,10 +33,7 @@ func SetupTestDB() *gorm.DB {
 
 	// 迁移数据库结构
 	err = db.AutoMigrate(
-		&model.User{},
-		&model.Session{},
-		&model.Account{},
-		&model.VerificationToken{},
+		&model.User{}, // 用户表
 	)
 	if err != nil {
 		log.Fatalf("迁移数据库失败: %v", err)
