@@ -10,6 +10,7 @@ import { initReactI18next } from 'react-i18next'
 import { useLanguageStore, getUserPreferredLanguage } from '@/stores/language-store'
 import commonZh from '../../public/locales/zh/common.json'
 import commonEn from '../../public/locales/en/common.json'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -60,7 +61,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <link rel="alternate" hrefLang="x-default" href="https://nicheflow.com" />
         </head>
         <body className={inter.className}>
-          <ClientWrapper>{children}</ClientWrapper>
+          <ClientWrapper>
+            {children}
+            <SpeedInsights />
+          </ClientWrapper>
         </body>
       </html>
     </AuthProvider>
