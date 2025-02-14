@@ -35,5 +35,8 @@
     "cz-git": "^1.11.0",
     "husky": "^8.0.0",
     "standard-version": "^9.5.0"
-  }
+  },
+  "workspaces": [
+    "frontend"
+  ]
 }
