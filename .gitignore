@@ -75,4 +75,45 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
-*~ 
+*~
+
+# Terraform 忽略规则
+# 本地状态文件
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/.terraform.lock.hcl
+
+# 变量文件（可能包含敏感信息）
+terraform/*.tfvars
+terraform/*.tfvars.json
+
+# 覆盖文件
+terraform/override.tf
+terraform/override.tf.json
+terraform/*_override.tf
+terraform/*_override.tf.json
+
+# CLI 配置文件
+.terraformrc
+terraform.rc
+
+# 日志文件
+terraform/crash.log
+terraform/crash.*.log
+
+# 敏感变量文件
+terraform/secret.tfvars
+terraform/terraform.tfvars
+terraform/.env*
+
+# 排除示例文件
+!terraform/*.tfvars.example
+!terraform/.env.example
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars 
