@@ -2,10 +2,7 @@ version: '3.8'
 
 services:
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: nicheflow-api:latest
+    image: ${ECR_REGISTRY:-nicheflow}/nicheflow-api:${IMAGE_TAG:-latest}
     container_name: nicheflow-api
     restart: unless-stopped
     ports:
@@ -13,6 +10,17 @@ services:
     environment:
       - APP_ENV=production
       - TZ=Asia/Shanghai
+      - AWS_REGION=${AWS_REGION:-ap-east-1}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - ./.env.production:/etc/nicheflow/.env
     networks:

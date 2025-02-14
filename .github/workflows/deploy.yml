@@ -1,0 +1,127 @@
+name: Deploy NicheFlow
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - '.github/workflows/**'
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'frontend/') || contains(github.event.head_commit.added, 'frontend/')
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          cd frontend
+          vercel deploy --prod --token=$VERCEL_TOKEN
+
+  deploy-backend-hk:
+    name: Deploy Backend to Hong Kong
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'backend/') || contains(github.event.head_commit.added, 'backend/')
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials (HK)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_HK }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_HK }}
+          aws-region: ap-east-1
+      
+      - name: Login to Amazon ECR
+        id: login-ecr-hk
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr-hk.outputs.registry }}
+          ECR_REPOSITORY: nicheflow-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd backend
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      
+      - name: Deploy to EC2 (HK)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST_HK }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull ${{ steps.login-ecr-hk.outputs.registry }}/nicheflow-api:${{ github.sha }}
+            docker-compose down
+            echo "IMAGE_TAG=${{ github.sha }}" > .env
+            docker-compose up -d
+
+  deploy-backend-us:
+    name: Deploy Backend to US
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'backend/') || contains(github.event.head_commit.added, 'backend/')
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials (US)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_US }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_US }}
+          aws-region: us-west-2
+      
+      - name: Login to Amazon ECR
+        id: login-ecr-us
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr-us.outputs.registry }}
+          ECR_REPOSITORY: nicheflow-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd backend
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      
+      - name: Deploy to EC2 (US)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST_US }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull ${{ steps.login-ecr-us.outputs.registry }}/nicheflow-api:${{ github.sha }}
+            docker-compose down
+            echo "IMAGE_TAG=${{ github.sha }}" > .env
+            docker-compose up -d
+
+  notify:
+    needs: [deploy-frontend, deploy-backend-hk, deploy-backend-us]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Notify deployment status
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_MESSAGE: |
+            Deployment Status:
+            Frontend: ${{ needs.deploy-frontend.result }}
+            Backend (HK): ${{ needs.deploy-backend-hk.result }}
+            Backend (US): ${{ needs.deploy-backend-us.result }} 
