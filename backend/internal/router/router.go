@@ -71,8 +71,8 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 	// 创建处理器
 	userHandler := handler.NewUserHandler()
 
-	// 移除 /api 前缀
-	v1 := r.Group("/v1") // 使用版本号替代
+	// API 路由组
+	v1 := r.Group("/v1")
 	{
 		// 用户相关路由
 		user := v1.Group("/user")

@@ -19,14 +19,15 @@ resource "aws_lb_listener" "hk_https" {
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_certificate.hk.arn
+  certificate_arn   = aws_acm_certificate_validation.api_hk.certificate_arn
 
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.hk.arn
   }
 
-  depends_on = [aws_acm_certificate_validation.hk]
+  # 暂时注释掉证书验证依赖
+  # depends_on = [aws_acm_certificate_validation.hk]
 }
 
 resource "aws_lb_listener" "hk_http" {
@@ -100,14 +101,15 @@ resource "aws_lb_listener" "us_https" {
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_certificate.us.arn
+  certificate_arn   = aws_acm_certificate_validation.api_us.certificate_arn
 
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.us.arn
   }
 
-  depends_on = [aws_acm_certificate_validation.us]
+  # 暂时注释掉证书验证依赖
+  # depends_on = [aws_acm_certificate_validation.us]
 }
 
 resource "aws_lb_listener" "us_http" {

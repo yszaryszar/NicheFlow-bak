@@ -1,18 +1,15 @@
-# 香港区域证书配置
-provider "aws" {
-  alias  = "hk"
-  region = "ap-east-1"
-}
-
-resource "aws_acm_certificate" "hk" {
+# 香港区域证书
+resource "aws_acm_certificate" "api_hk" {
   provider          = aws.hk
   domain_name       = "api.getnicheflow.com"
+  subject_alternative_names = [
+    "hk.api.getnicheflow.com",
+    "*.api.getnicheflow.com"
+  ]
   validation_method = "DNS"
-  
-  subject_alternative_names = ["hk.api.getnicheflow.com"]
 
   tags = {
-    Name = "nicheflow-hk-cert"
+    Name        = "nicheflow-api-certificate-hk"
     Environment = "production"
   }
 
@@ -21,47 +18,18 @@ resource "aws_acm_certificate" "hk" {
   }
 }
 
-# 香港区域证书验证记录
-resource "aws_route53_record" "hk_validation" {
-  provider = aws.global
-  for_each = {
-    for dvo in aws_acm_certificate.hk.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
-
-  allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
-  ttl             = 60
-  type            = each.value.type
-  zone_id         = aws_route53_zone.main.zone_id
-}
-
-# 香港区域证书验证
-resource "aws_acm_certificate_validation" "hk" {
-  provider                = aws.hk
-  certificate_arn         = aws_acm_certificate.hk.arn
-  validation_record_fqdns = [for record in aws_route53_record.hk_validation : record.fqdn]
-}
-
-# 美国区域证书配置
-provider "aws" {
-  alias  = "us"
-  region = "us-east-1"
-}
-
-resource "aws_acm_certificate" "us" {
+# 美国区域证书
+resource "aws_acm_certificate" "api_us" {
   provider          = aws.us
   domain_name       = "api.getnicheflow.com"
+  subject_alternative_names = [
+    "us.api.getnicheflow.com",
+    "*.api.getnicheflow.com"
+  ]
   validation_method = "DNS"
-  
-  subject_alternative_names = ["us.api.getnicheflow.com"]
 
   tags = {
-    Name = "nicheflow-us-cert"
+    Name        = "nicheflow-api-certificate-us"
     Environment = "production"
   }
 
@@ -70,28 +38,45 @@ resource "aws_acm_certificate" "us" {
   }
 }
 
-# 美国区域证书验证记录
-resource "aws_route53_record" "us_validation" {
-  provider = aws.global
-  for_each = {
-    for dvo in aws_acm_certificate.us.domain_validation_options : dvo.domain_name => {
+# 等待香港区域证书验证完成
+resource "aws_acm_certificate_validation" "api_hk" {
+  provider                = aws.hk
+  certificate_arn         = aws_acm_certificate.api_hk.arn
+  validation_record_fqdns = [for record in aws_route53_record.acm_validation_hk : record.fqdn]
+
+  timeouts {
+    create = "45m"
+  }
+}
+
+# 等待美国区域证书验证完成
+resource "aws_acm_certificate_validation" "api_us" {
+  provider                = aws.us
+  certificate_arn         = aws_acm_certificate.api_us.arn
+  validation_record_fqdns = [for record in aws_route53_record.acm_validation_us : record.fqdn]
+
+  timeouts {
+    create = "45m"
+  }
+}
+
+# 输出验证信息（用于调试）
+output "hk_certificate_validation_records" {
+  value = {
+    for dvo in aws_acm_certificate.api_hk.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
     }
   }
-
-  allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
-  ttl             = 60
-  type            = each.value.type
-  zone_id         = aws_route53_zone.main.zone_id
 }
 
-# 美国区域证书验证
-resource "aws_acm_certificate_validation" "us" {
-  provider                = aws.us
-  certificate_arn         = aws_acm_certificate.us.arn
-  validation_record_fqdns = [for record in aws_route53_record.us_validation : record.fqdn]
+output "us_certificate_validation_records" {
+  value = {
+    for dvo in aws_acm_certificate.api_us.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
 } 
