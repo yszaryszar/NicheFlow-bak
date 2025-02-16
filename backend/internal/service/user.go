@@ -36,10 +36,12 @@ func NewUserService() *UserService {
 //   - error: 错误信息，如果没有错误则为 nil
 func (s *UserService) GetUserByClerkID(ctx context.Context, clerkID string) (*model.User, error) {
 	var user model.User
-	if err := s.db.Where("clerk_id = ?", clerkID).First(&user).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
+	err := s.db.WithContext(ctx).
+		Preload("SocialAccounts").
+		Preload("Preferences").
+		Where("clerk_id = ?", clerkID).
+		First(&user).Error
+	if err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -54,7 +56,7 @@ func (s *UserService) GetUserByClerkID(ctx context.Context, clerkID string) (*mo
 // 返回:
 //   - error: 创建过程中的错误信息，如果成功则为 nil
 func (s *UserService) CreateUser(ctx context.Context, user *model.User) error {
-	return s.db.Create(user).Error
+	return s.db.WithContext(ctx).Create(user).Error
 }
 
 // UpdateUser 更新用户信息
@@ -66,7 +68,7 @@ func (s *UserService) CreateUser(ctx context.Context, user *model.User) error {
 // 返回:
 //   - error: 更新过程中的错误信息，如果成功则为 nil
 func (s *UserService) UpdateUser(ctx context.Context, user *model.User) error {
-	return s.db.Save(user).Error
+	return s.db.WithContext(ctx).Save(user).Error
 }
 
 // UpdateUserPreferences 更新用户偏好设置
@@ -79,13 +81,56 @@ func (s *UserService) UpdateUser(ctx context.Context, user *model.User) error {
 //
 // 返回:
 //   - error: 更新过程中的错误信息，如果成功则为 nil
-func (s *UserService) UpdateUserPreferences(ctx context.Context, clerkID string, language, theme string) error {
-	return s.db.Model(&model.User{}).
-		Where("clerk_id = ?", clerkID).
-		Updates(map[string]interface{}{
-			"language": language,
-			"theme":    theme,
-		}).Error
+func (s *UserService) UpdateUserPreferences(ctx context.Context, clerkID string, preferences map[string]interface{}) error {
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var user model.User
+		if err := tx.Where("clerk_id = ?", clerkID).First(&user).Error; err != nil {
+			return err
+		}
+
+		// 更新内置偏好设置字段
+		updates := make(map[string]interface{})
+		for key, value := range preferences {
+			switch key {
+			case "language":
+				updates["language"] = value
+			case "theme":
+				updates["theme"] = value
+			case "time_zone":
+				updates["time_zone"] = value
+			case "date_format":
+				updates["date_format"] = value
+			case "time_format":
+				updates["time_format"] = value
+			case "notification_email":
+				updates["notification_email"] = value
+			case "notification_mobile":
+				updates["notification_mobile"] = value
+			case "notification_web":
+				updates["notification_web"] = value
+			default:
+				// 对于非内置字段，保存到 user_preferences 表
+				pref := model.UserPreference{
+					UserID: user.ID,
+					Key:    key,
+					Value:  value.(string),
+				}
+				if err := tx.Where("user_id = ? AND key = ?", user.ID, key).
+					Assign(pref).
+					FirstOrCreate(&pref).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		if len(updates) > 0 {
+			if err := tx.Model(&user).Updates(updates).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 }
 
 // GetUserUsage 获取用户使用统计信息
@@ -186,4 +231,93 @@ func (s *UserService) UpdateUserSubscription(ctx context.Context, clerkID string
 			"subscription_end":    subscription.SubscriptionEnd,
 			"trial_end":           subscription.TrialEnd,
 		}).Error
+}
+
+// LinkSocialAccount 关联社交账号
+func (s *UserService) LinkSocialAccount(ctx context.Context, clerkID string, account *model.SocialAccount) error {
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var user model.User
+		if err := tx.Where("clerk_id = ?", clerkID).First(&user).Error; err != nil {
+			return err
+		}
+
+		// 检查是否已存在相同的社交账号
+		var count int64
+		tx.Model(&model.SocialAccount{}).
+			Where("user_id != ? AND provider = ? AND account_id = ?", user.ID, account.Provider, account.AccountID).
+			Count(&count)
+		if count > 0 {
+			return errors.New("该社交账号已被其他用户绑定")
+		}
+
+		account.UserID = user.ID
+		account.LastUsed = &time.Time{}
+		return tx.Create(account).Error
+	})
+}
+
+// UnlinkSocialAccount 解除社交账号关联
+func (s *UserService) UnlinkSocialAccount(ctx context.Context, clerkID string, provider string, accountID string) error {
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var user model.User
+		if err := tx.Where("clerk_id = ?", clerkID).First(&user).Error; err != nil {
+			return err
+		}
+
+		// 确保用户至少保留一个登录方式
+		var count int64
+		tx.Model(&model.SocialAccount{}).Where("user_id = ?", user.ID).Count(&count)
+		if count <= 1 && user.Email == "" && user.PhoneNumber == "" {
+			return errors.New("必须保留至少一种登录方式")
+		}
+
+		result := tx.Where("user_id = ? AND provider = ? AND account_id = ?",
+			user.ID, provider, accountID).
+			Delete(&model.SocialAccount{})
+		if result.RowsAffected == 0 {
+			return errors.New("未找到指定的社交账号")
+		}
+		return nil
+	})
+}
+
+// GetUserSocialAccounts 获取用户的社交账号列表
+func (s *UserService) GetUserSocialAccounts(ctx context.Context, clerkID string) ([]model.SocialAccount, error) {
+	var accounts []model.SocialAccount
+	err := s.db.WithContext(ctx).
+		Joins("JOIN users ON users.id = social_accounts.user_id").
+		Where("users.clerk_id = ?", clerkID).
+		Find(&accounts).Error
+	return accounts, err
+}
+
+// GetUserPreference 获取用户的偏好设置
+func (s *UserService) GetUserPreference(ctx context.Context, clerkID string) (map[string]interface{}, error) {
+	var user model.User
+	err := s.db.WithContext(ctx).
+		Preload("Preferences").
+		Where("clerk_id = ?", clerkID).
+		First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// 合并内置偏好设置和自定义偏好设置
+	preferences := map[string]interface{}{
+		"language":            user.Language,
+		"theme":               user.Theme,
+		"time_zone":           user.TimeZone,
+		"date_format":         user.DateFormat,
+		"time_format":         user.TimeFormat,
+		"notification_email":  user.NotificationEmail,
+		"notification_mobile": user.NotificationMobile,
+		"notification_web":    user.NotificationWeb,
+	}
+
+	// 添加自定义偏好设置
+	for _, pref := range user.Preferences {
+		preferences[pref.Key] = pref.Value
+	}
+
+	return preferences, nil
 }

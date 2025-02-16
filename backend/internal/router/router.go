@@ -86,6 +86,26 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 			// @Tags 用户
 			user.PUT("/profile", userHandler.UpdateProfile)
 
+			// @Summary 获取用户偏好设置
+			// @Tags 用户
+			user.GET("/preferences", userHandler.GetPreferences)
+
+			// @Summary 更新用户偏好设置
+			// @Tags 用户
+			user.PUT("/preferences", userHandler.UpdatePreferences)
+
+			// @Summary 获取用户社交账号
+			// @Tags 用户
+			user.GET("/social-accounts", userHandler.GetSocialAccounts)
+
+			// @Summary 添加用户社交账号
+			// @Tags 用户
+			user.POST("/social-accounts", userHandler.LinkSocialAccount)
+
+			// @Summary 删除用户社交账号
+			// @Tags 用户
+			user.DELETE("/social-accounts/:provider/:accountId", userHandler.UnlinkSocialAccount)
+
 			// @Summary 获取用户使用统计
 			// @Tags 用户
 			user.GET("/usage", userHandler.GetUsage)

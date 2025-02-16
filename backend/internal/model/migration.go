@@ -18,6 +18,8 @@ import (
 //
 // 支持的模型：
 // - User: 用户模型，存储用户基本信息和认证状态
+// - SocialAccount: 社交账号模型，存储用户绑定的第三方账号信息
+// - UserPreference: 用户偏好设置模型，存储用户的自定义设置
 //
 // 返回:
 //   - error: 迁移过程中的错误，如果成功则为 nil
@@ -29,7 +31,9 @@ func AutoMigrate() error {
 
 	// 自动迁移表结构
 	err := db.AutoMigrate(
-		&User{}, // 用户表
+		&User{},           // 用户表
+		&SocialAccount{},  // 社交账号表
+		&UserPreference{}, // 用户偏好设置表
 	)
 	if err != nil {
 		log.Printf("数据库迁移失败: %v", err)
