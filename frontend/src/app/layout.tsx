@@ -11,6 +11,7 @@ import { useLanguageStore, getUserPreferredLanguage } from '@/stores/language-st
 import commonZh from '../../public/locales/zh/common.json'
 import commonEn from '../../public/locales/en/common.json'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { LayoutSwitcher } from '@/components/layout/layout-switcher'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -62,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </head>
         <body className={inter.className}>
           <ClientWrapper>
-            {children}
+            <LayoutSwitcher>{children}</LayoutSwitcher>
             <SpeedInsights />
           </ClientWrapper>
         </body>

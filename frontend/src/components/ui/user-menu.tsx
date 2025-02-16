@@ -93,14 +93,14 @@ export function UserMenu({ theme = 'light' }: UserMenuProps) {
         >
           <div className="py-1">
             <div
-              onClick={() => router.push('/dashboard/profile')}
+              onClick={() => router.push('/settings/profile')}
               className="flex items-center py-2 px-3 cursor-pointer hover:bg-accent"
             >
               <RiUser3Line className="mr-2 h-4 w-4" />
               {t('userMenu.profile')}
             </div>
             <div
-              onClick={() => router.push('/dashboard/settings')}
+              onClick={() => router.push('/settings')}
               className="flex items-center py-2 px-3 cursor-pointer hover:bg-accent"
             >
               <RiSettings4Line className="mr-2 h-4 w-4" />

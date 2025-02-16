@@ -74,5 +74,46 @@
       "settings": "设置",
       "support": "帮助支持"
     }
+  },
+  "settings": {
+    "menu": {
+      "profile": "个人资料",
+      "appearance": "外观设置",
+      "language": "语言设置",
+      "security": "安全设置",
+      "notifications": "通知设置"
+    },
+    "profile": {
+      "title": "个人资料",
+      "description": "管理您的个人信息和账号设置",
+      "basicInfo": "基本信息",
+      "changeAvatar": "更换头像",
+      "avatarHint": "支持 JPG、PNG 格式，大小不超过 2MB",
+      "firstName": "名字",
+      "firstNamePlaceholder": "请输入您的名字",
+      "lastName": "姓氏",
+      "lastNamePlaceholder": "请输入您的姓氏",
+      "username": "用户名",
+      "usernamePlaceholder": "请输入您的用户名",
+      "email": "邮箱",
+      "emailVerified": "此邮箱已验证",
+      "save": "保存更改"
+    },
+    "appearance": {
+      "title": "外观设置",
+      "description": "自定义界面外观和主题"
+    },
+    "language": {
+      "title": "语言设置",
+      "description": "设置您偏好的语言和地区"
+    },
+    "security": {
+      "title": "安全设置",
+      "description": "管理您的账号安全和隐私设置"
+    },
+    "notifications": {
+      "title": "通知设置",
+      "description": "自定义通知偏好和提醒方式"
+    }
   }
 }

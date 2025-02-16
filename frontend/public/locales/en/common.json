@@ -74,5 +74,46 @@
       "settings": "Settings",
       "support": "Help & Support"
     }
+  },
+  "settings": {
+    "menu": {
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "language": "Language",
+      "security": "Security",
+      "notifications": "Notifications"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Manage your personal information and account settings",
+      "basicInfo": "Basic Information",
+      "changeAvatar": "Change Avatar",
+      "avatarHint": "JPG or PNG, max 2MB",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Enter your last name",
+      "username": "Username",
+      "usernamePlaceholder": "Enter your username",
+      "email": "Email",
+      "emailVerified": "This email is verified",
+      "save": "Save Changes"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize interface appearance and theme"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Set your preferred language and region"
+    },
+    "security": {
+      "title": "Security",
+      "description": "Manage your account security and privacy settings"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Customize notification preferences and alert methods"
+    }
   }
 }

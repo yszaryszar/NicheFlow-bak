@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import {
   RiDashboardLine,
@@ -8,6 +8,11 @@ import {
   RiVideoLine,
   RiSettings4Line,
   RiCustomerServiceLine,
+  RiUserSettingsLine,
+  RiPaletteLine,
+  RiGlobalLine,
+  RiShieldUserLine,
+  RiNotificationLine,
 } from 'react-icons/ri'
 import { Logo } from '@/components/ui/logo'
 import { ThemeSwitch } from '@/components/ui/theme-switch'
@@ -23,6 +28,11 @@ type SidebarItem =
       icon: JSX.Element
       labelKey: string
       disabled?: boolean
+      children?: {
+        key: string
+        icon: JSX.Element
+        labelKey: string
+      }[]
     }
   | {
       type: 'divider'
@@ -35,12 +45,12 @@ const sidebarItems: SidebarItem[] = [
     labelKey: 'dashboard.menu.workspace',
   },
   {
-    key: '/dashboard/scripts',
+    key: '/scripts',
     icon: <RiFileTextLine className="text-lg" />,
     labelKey: 'dashboard.menu.scripts',
   },
   {
-    key: '/dashboard/videos',
+    key: '/videos',
     icon: <RiVideoLine className="text-lg" />,
     labelKey: 'dashboard.menu.videos',
     disabled: true,
@@ -49,12 +59,39 @@ const sidebarItems: SidebarItem[] = [
     type: 'divider',
   },
   {
-    key: '/dashboard/settings',
+    key: '/settings',
     icon: <RiSettings4Line className="text-lg" />,
     labelKey: 'dashboard.menu.settings',
+    children: [
+      {
+        key: '/settings/profile',
+        icon: <RiUserSettingsLine className="text-lg" />,
+        labelKey: 'settings.menu.profile',
+      },
+      {
+        key: '/settings/appearance',
+        icon: <RiPaletteLine className="text-lg" />,
+        labelKey: 'settings.menu.appearance',
+      },
+      {
+        key: '/settings/language',
+        icon: <RiGlobalLine className="text-lg" />,
+        labelKey: 'settings.menu.language',
+      },
+      {
+        key: '/settings/security',
+        icon: <RiShieldUserLine className="text-lg" />,
+        labelKey: 'settings.menu.security',
+      },
+      {
+        key: '/settings/notifications',
+        icon: <RiNotificationLine className="text-lg" />,
+        labelKey: 'settings.menu.notifications',
+      },
+    ],
   },
   {
-    key: '/dashboard/support',
+    key: '/support',
     icon: <RiCustomerServiceLine className="text-lg" />,
     labelKey: 'dashboard.menu.support',
   },
@@ -68,6 +105,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
   const { t } = useTranslation('common')
+  const [expandedItem, setExpandedItem] = useState<string | null>(null)
 
   return (
     <div className="min-h-screen bg-background">
@@ -85,6 +123,35 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               {sidebarItems.map(item =>
                 'type' in item ? (
                   <hr key="divider" className="my-4 border-border" />
+                ) : item.children ? (
+                  <div key={item.key}>
+                    <Button
+                      variant={pathname.startsWith(item.key) ? 'secondary' : 'ghost'}
+                      className={cn(
+                        'w-full justify-start gap-3 font-normal',
+                        item.disabled && 'opacity-50 cursor-not-allowed'
+                      )}
+                      onClick={() => setExpandedItem(expandedItem === item.key ? null : item.key)}
+                    >
+                      {item.icon}
+                      {t(item.labelKey)}
+                    </Button>
+                    {expandedItem === item.key && (
+                      <div className="ml-4 mt-1 space-y-1">
+                        {item.children.map(child => (
+                          <Button
+                            key={child.key}
+                            variant={pathname === child.key ? 'secondary' : 'ghost'}
+                            className="w-full justify-start gap-3 font-normal text-sm"
+                            onClick={() => router.push(child.key)}
+                          >
+                            {child.icon}
+                            {t(child.labelKey)}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <Button
                     key={item.key}
