@@ -40,7 +40,6 @@
   "ignoreCommand": "git diff --quiet HEAD^ HEAD ./frontend || exit 1",
   "builds": [
     {
-      "src": "next.config.ts",
       "use": "@vercel/next"
     }
   ]
