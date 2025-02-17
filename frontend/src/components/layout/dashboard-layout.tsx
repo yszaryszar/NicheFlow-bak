@@ -41,17 +41,17 @@ type SidebarItem =
 
 const sidebarItems: SidebarItem[] = [
   {
-    key: 'dashboard',
+    key: '/',
     icon: <RiDashboardLine className="h-5 w-5" />,
     labelKey: 'dashboard.menu.workspace',
   },
   {
-    key: 'scripts',
+    key: '/scripts',
     icon: <RiFileTextLine className="h-5 w-5" />,
     labelKey: 'dashboard.menu.scripts',
   },
   {
-    key: 'videos',
+    key: '/videos',
     icon: <RiVideoLine className="h-5 w-5" />,
     labelKey: 'dashboard.menu.videos',
   },
@@ -88,7 +88,7 @@ const sidebarItems: SidebarItem[] = [
     ],
   },
   {
-    key: 'support',
+    key: '/support',
     icon: <RiCustomerServiceLine className="h-5 w-5" />,
     labelKey: 'dashboard.menu.support',
   },
