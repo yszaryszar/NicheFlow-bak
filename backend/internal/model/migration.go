@@ -8,28 +8,37 @@ import (
 )
 
 // AutoMigrate 自动迁移数据库表结构
-// 根据模型定义自动创建或更新数据库表
-//
-// 执行以下操作：
-// 1. 检查数据库连接
-// 2. 自动创建或更新表结构
-// 3. 添加或更新索引
-// 4. 处理模型关系
-//
-// 支持的模型：
-// - User: 用户模型，存储用户基本信息和认证状态
-// - SocialAccount: 社交账号模型，存储用户绑定的第三方账号信息
-// - UserPreference: 用户偏好设置模型，存储用户的自定义设置
-//
-// 返回:
-//   - error: 迁移过程中的错误，如果成功则为 nil
 func AutoMigrate() error {
 	db := database.GetDB()
 	if db == nil {
 		log.Fatal("数据库连接未初始化")
 	}
 
-	// 自动迁移表结构
+	// 1. 首先创建一个临时的 email_verified_new 列
+	if err := db.Exec(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_new boolean DEFAULT false`).Error; err != nil {
+		log.Printf("添加临时列失败: %v", err)
+		return err
+	}
+
+	// 2. 更新临时列的值
+	if err := db.Exec(`UPDATE users SET email_verified_new = true WHERE email_verified IS NOT NULL`).Error; err != nil {
+		log.Printf("更新临时列失败: %v", err)
+		return err
+	}
+
+	// 3. 删除原有的 email_verified 列
+	if err := db.Exec(`ALTER TABLE users DROP COLUMN IF EXISTS email_verified`).Error; err != nil {
+		log.Printf("删除原有列失败: %v", err)
+		return err
+	}
+
+	// 4. 重命名临时列
+	if err := db.Exec(`ALTER TABLE users RENAME COLUMN email_verified_new TO email_verified`).Error; err != nil {
+		log.Printf("重命名临时列失败: %v", err)
+		return err
+	}
+
+	// 5. 执行其他模型的迁移
 	err := db.AutoMigrate(
 		&User{},           // 用户表
 		&SocialAccount{},  // 社交账号表

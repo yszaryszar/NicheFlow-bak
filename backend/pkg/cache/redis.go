@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"log"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/yszaryszar/NicheFlow/backend/internal/config"
@@ -43,16 +44,11 @@ func NewRedisClient(cfg *config.RedisConfig) (*redis.Client, error) {
 		DB:       cfg.DB,                                   // 数据库编号
 	}
 
-	// AWS ElastiCache 的 TLS 配置
+	// TLS 配置 (AWS ElastiCache)
 	if cfg.TLSEnable {
 		options.TLSConfig = &tls.Config{
-			MinVersion: tls.VersionTLS12, // 最低 TLS 版本要求
-			// 安全说明：
-			// 1. Redis 实例通过 AWS 安全组限制只允许特定 EC2 访问
-			// 2. 所有连接都通过 SSH 隧道加密传输
-			// 3. ElastiCache 在 VPC 内部，网络环境受控
-			// 因此跳过证书验证是安全的
-			InsecureSkipVerify: true,
+			MinVersion:         tls.VersionTLS12,
+			InsecureSkipVerify: true, // AWS ElastiCache 使用自签名证书
 		}
 	}
 
@@ -65,6 +61,7 @@ func NewRedisClient(cfg *config.RedisConfig) (*redis.Client, error) {
 		return nil, fmt.Errorf("连接 Redis 失败: %w", err)
 	}
 
+	log.Println("Redis 连接成功")
 	return rdb, nil
 }
 

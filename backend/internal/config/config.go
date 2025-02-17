@@ -148,6 +148,26 @@ func LoadConfig() (*Config, error) {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AllowEmptyEnv(true)
 
+	// 绑定应用配置环境变量
+	viper.BindEnv("app.env", "APP_ENV")
+	viper.BindEnv("app.mode", "APP_MODE")
+	viper.BindEnv("app.port", "APP_PORT")
+	viper.BindEnv("app.base_url", "APP_BASE_URL")
+
+	// 绑定数据库配置环境变量
+	viper.BindEnv("database.host", "DB_HOST")
+	viper.BindEnv("database.port", "DB_PORT")
+	viper.BindEnv("database.name", "DB_NAME")
+	viper.BindEnv("database.user", "DB_USER")
+	viper.BindEnv("database.password", "DB_PASSWORD")
+	viper.BindEnv("database.ssl_mode", "DB_SSL_MODE")
+	viper.BindEnv("database.ssl_tunnel", "DB_SSL_TUNNEL")
+
+	// 绑定 Clerk 配置环境变量
+	viper.BindEnv("clerk.api_key", "CLERK_API_KEY")
+	viper.BindEnv("clerk.frontend_api", "CLERK_FRONTEND_API")
+	viper.BindEnv("clerk.webhook_key", "CLERK_WEBHOOK_KEY")
+
 	// 读取配置文件
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("读取配置文件失败: %w", err)

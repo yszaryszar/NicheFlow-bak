@@ -66,19 +66,8 @@ func NewPostgresDB(cfg *config.DatabaseConfig) (*gorm.DB, error) {
 		return db, nil
 	}
 
-	// 构建连接字符串
-	dsn := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s",
-		cfg.Host,
-		cfg.Port,
-		cfg.User,
-		cfg.Name,
-		cfg.Password,
-	)
-
-	// 添加 SSL 配置
-	if cfg.SSLMode != "" {
-		dsn += fmt.Sprintf(" sslmode=%s", cfg.SSLMode)
-	}
+	// 使用配置的 GetDSN 方法获取连接字符串
+	dsn := cfg.GetDSN()
 
 	// 解析连接最大生命周期
 	connMaxLifetime, err := time.ParseDuration(cfg.ConnMaxLifetime)
@@ -91,10 +80,10 @@ func NewPostgresDB(cfg *config.DatabaseConfig) (*gorm.DB, error) {
 		Logger: logger.New(
 			log.New(os.Stdout, "\r\n", log.LstdFlags),
 			logger.Config{
-				SlowThreshold:             time.Second,   // 慢查询阈值
-				LogLevel:                  logger.Silent, // 日志级别
-				IgnoreRecordNotFoundError: true,          // 忽略记录未找到错误
-				Colorful:                  false,         // 禁用彩色输出
+				SlowThreshold:             time.Second, // 慢查询阈值
+				LogLevel:                  logger.Info, // 日志级别改为 Info
+				IgnoreRecordNotFoundError: true,        // 忽略记录未找到错误
+				Colorful:                  true,        // 启用彩色输出
 			},
 		),
 	}

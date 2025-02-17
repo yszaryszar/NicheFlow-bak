@@ -1,11 +1,37 @@
 app:
   name: NicheFlow
   version: 0.1.0
+  env: ${APP_ENV:-development}
+  mode: ${APP_MODE:-debug}
+  port: ${APP_PORT:-8080}
+  base_url: ${APP_BASE_URL:-http://localhost:8080}
+  region: ${AWS_REGION:-ap-east-1}
   
 database:
+  driver: postgres
+  host: 127.0.0.1
+  port: 5432
+  name: niche_flow
+  user: yszar
+  password: andylau1987212
+  ssl_mode: require
+  ssl_tunnel: true
   max_idle_conns: 10
   max_open_conns: 100
   conn_max_lifetime: 1h
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: ""
+  db: 0
+  ssl_tunnel: true
+  tls_enable: true
+
+clerk:
+  api_key: "your_clerk_api_key"
+  frontend_api: "your_clerk_frontend_api"
+  webhook_key: "your_clerk_webhook_key"
 
 openai:
   model: gpt-4-turbo-preview
@@ -33,4 +59,4 @@ middleware:
       - Authorization
       - Content-Type
       - X-Clerk-User-Id
-    max_age: 300 
+    max_age: 300

@@ -83,7 +83,7 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 
 		// 用户相关路由
 		userGroup := v1.Group("/user")
-		userGroup.Use(middleware.AuthMiddleware())
+		userGroup.Use(middlewareManager.GetAuthMiddleware())
 		{
 			// @Summary 获取用户个人资料
 			// @Tags 用户
