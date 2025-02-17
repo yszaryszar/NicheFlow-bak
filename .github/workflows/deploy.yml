@@ -4,9 +4,19 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "backend/**"
-      - ".github/workflows/**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "部署环境"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+      reason:
+        description: "部署原因"
+        required: false
+        type: string
 
 jobs:
   check-backend-changes:
@@ -17,10 +27,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - id: check
+      - name: Check for backend changes
+        id: check
         run: |
-          git diff --name-only HEAD^ HEAD > changes.txt
-          echo "has_changes=$(grep -q '^backend/' changes.txt && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+          git fetch origin main
+          git diff --name-only origin/main...HEAD > changes.txt
+          echo "has_changes=$(grep -q -E '^(backend/|.github/workflows/)' changes.txt && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
   deploy-backend-hk:
     name: Deploy Backend to Hong Kong
