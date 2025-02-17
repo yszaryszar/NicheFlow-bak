@@ -37,7 +37,7 @@
       "main": true
     }
   },
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./frontend",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- frontend",
   "builds": [
     {
       "src": "next.config.ts",
