@@ -101,26 +101,26 @@
     },
     "appearance": {
       "title": "Appearance",
-      "description": "Customize interface appearance and theme",
+      "description": "Customize the interface appearance and theme",
       "theme": "Theme",
       "themes": {
-        "light": "Light",
-        "dark": "Dark",
-        "system": "System"
+        "light": "Light Theme",
+        "dark": "Dark Theme",
+        "system": "System Default"
       }
     },
     "language": {
       "title": "Language",
-      "description": "Set your preferred language and region",
+      "description": "Choose your preferred interface language",
       "language": "Interface Language",
       "languages": {
-        "zh": "简体中文",
+        "zh": "Chinese",
         "en": "English"
       }
     },
     "security": {
       "title": "Security",
-      "description": "Manage your account security and privacy settings",
+      "description": "Manage your account security and authentication methods",
       "password": {
         "title": "Password",
         "description": "Regularly changing your password helps keep your account secure",
@@ -135,23 +135,16 @@
       },
       "2fa": {
         "title": "Two-Factor Authentication",
-        "description": "Add an extra layer of security to your account",
+        "description": "Enhance account security with two-factor authentication",
+        "enabled": "Two-factor authentication is enabled",
+        "disabled": "Two-factor authentication is disabled",
         "enable": "Enable 2FA",
         "disable": "Disable 2FA",
-        "scan": "Scan QR Code",
-        "verify": "Verify Code",
-        "backup": "Backup Recovery Codes",
-        "scanDescription": "Scan the QR code below with your authenticator app",
-        "verifyDescription": "Enter the 6-digit code from your authenticator app",
-        "secretKey": "Secret Key",
-        "verificationCode": "Verification Code",
+        "code": "Verification Code",
         "codePlaceholder": "Enter 6-digit code",
-        "back": "Back",
-        "enableSuccess": "Two-factor authentication enabled",
-        "disableSuccess": "Two-factor authentication disabled",
-        "invalidCode": "Invalid verification code",
-        "verifyError": "Verification failed, please try again",
-        "disableError": "Operation failed, please try again"
+        "verify": "Verify",
+        "enableFailed": "Failed to enable 2FA",
+        "disableFailed": "Failed to disable 2FA"
       },
       "loginHistory": {
         "title": "Login History",
@@ -183,7 +176,7 @@
       },
       "mobile": {
         "title": "Mobile Notifications",
-        "description": "Receive instant notifications on your mobile device"
+        "description": "Get instant notifications on your mobile device"
       },
       "web": {
         "title": "Web Notifications",

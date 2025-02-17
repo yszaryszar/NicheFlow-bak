@@ -102,25 +102,25 @@
     "appearance": {
       "title": "外观设置",
       "description": "自定义界面外观和主题",
-      "theme": "主题",
+      "theme": "主题选择",
       "themes": {
-        "light": "浅色",
-        "dark": "深色",
+        "light": "浅色主题",
+        "dark": "深色主题",
         "system": "跟随系统"
       }
     },
     "language": {
       "title": "语言设置",
-      "description": "设置您偏好的语言和地区",
+      "description": "选择您偏好的界面语言",
       "language": "界面语言",
       "languages": {
-        "zh": "简体中文",
+        "zh": "中文",
         "en": "English"
       }
     },
     "security": {
       "title": "安全设置",
-      "description": "管理您的账号安全和隐私设置",
+      "description": "管理您的账号安全和认证方式",
       "password": {
         "title": "密码",
         "description": "定期更改密码有助于保护您的账号安全",
@@ -135,23 +135,16 @@
       },
       "2fa": {
         "title": "两步验证",
-        "description": "为您的账号添加额外的安全保护",
-        "enable": "开启两步验证",
-        "disable": "关闭两步验证",
-        "scan": "扫描二维码",
-        "verify": "验证码",
-        "backup": "备份恢复码",
-        "scanDescription": "使用身份验证器应用扫描下方二维码",
-        "verifyDescription": "输入身份验证器应用生成的 6 位验证码",
-        "secretKey": "密钥",
-        "verificationCode": "验证码",
-        "codePlaceholder": "输入 6 位验证码",
-        "back": "返回",
-        "enableSuccess": "两步验证已开启",
-        "disableSuccess": "两步验证已关闭",
-        "invalidCode": "验证码无效",
-        "verifyError": "验证失败，请重试",
-        "disableError": "操作失败，请重试"
+        "description": "使用两步验证增强账号安全性",
+        "enabled": "两步验证已启用",
+        "disabled": "两步验证已禁用",
+        "enable": "启用两步验证",
+        "disable": "禁用两步验证",
+        "code": "验证码",
+        "codePlaceholder": "请输入6位验证码",
+        "verify": "验证",
+        "enableFailed": "启用两步验证失败",
+        "disableFailed": "禁用两步验证失败"
       },
       "loginHistory": {
         "title": "登录历史",
