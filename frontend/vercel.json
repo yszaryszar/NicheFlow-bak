@@ -37,10 +37,5 @@
       "main": true
     }
   },
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./frontend || exit 1",
-  "builds": [
-    {
-      "use": "@vercel/next"
-    }
-  ]
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./frontend || exit 1"
 }
