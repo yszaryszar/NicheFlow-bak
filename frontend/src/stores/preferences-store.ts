@@ -2,6 +2,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { toast } from 'sonner'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.getnicheflow.com'
+
 interface Preferences {
   language: string
   theme: string
@@ -40,7 +42,7 @@ const usePreferencesStore = create<PreferencesState>()(
       fetchPreferences: async () => {
         try {
           set({ isLoading: true, error: null })
-          const response = await fetch('/v1/user/preferences')
+          const response = await fetch(`${API_BASE_URL}/v1/user/preferences`)
           if (!response.ok) {
             throw new Error('获取偏好设置失败')
           }
@@ -61,7 +63,7 @@ const usePreferencesStore = create<PreferencesState>()(
       updatePreferences: async (newPreferences: Partial<Preferences>) => {
         try {
           set({ isLoading: true, error: null })
-          const response = await fetch('/v1/user/preferences', {
+          const response = await fetch(`${API_BASE_URL}/v1/user/preferences`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
