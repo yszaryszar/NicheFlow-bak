@@ -70,10 +70,17 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 
 	// 创建处理器
 	userHandler := handler.NewUserHandler()
+	authHandler := handler.NewAuthHandler()
 
 	// API 路由组
 	v1 := r.Group("/v1")
 	{
+		// 认证相关路由
+		auth := v1.Group("/auth")
+		{
+			auth.POST("/sync", authHandler.SyncUserData)
+		}
+
 		// 用户相关路由
 		user := v1.Group("/user")
 		user.Use(middlewareManager.GetAuthMiddleware())
