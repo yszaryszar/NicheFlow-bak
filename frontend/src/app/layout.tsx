@@ -12,6 +12,7 @@ import commonZh from '../../public/locales/zh/common.json'
 import commonEn from '../../public/locales/en/common.json'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { LayoutSwitcher } from '@/components/layout/layout-switcher'
+import { Toaster } from 'sonner'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -44,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     if (detectedLanguage !== language) {
       setLanguage(detectedLanguage)
     }
-  }, [])
+  }, [language, setLanguage])
 
   // 语言变化时更新
   useEffect(() => {
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body className={inter.className}>
           <ClientWrapper>
             <LayoutSwitcher>{children}</LayoutSwitcher>
+            <Toaster richColors position="top-right" />
             <SpeedInsights />
           </ClientWrapper>
         </body>

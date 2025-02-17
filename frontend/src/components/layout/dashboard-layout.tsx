@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import {
   RiDashboardLine,
@@ -8,11 +8,10 @@ import {
   RiVideoLine,
   RiSettings4Line,
   RiCustomerServiceLine,
-  RiUserSettingsLine,
-  RiPaletteLine,
-  RiGlobalLine,
-  RiShieldUserLine,
-  RiNotificationLine,
+  RiArrowRightSLine,
+  RiUser3Line,
+  RiShieldKeyholeLine,
+  RiBellLine,
 } from 'react-icons/ri'
 import { Logo } from '@/components/ui/logo'
 import { ThemeSwitch } from '@/components/ui/theme-switch'
@@ -60,32 +59,22 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     key: '/settings',
-    icon: <RiSettings4Line className="text-lg" />,
+    icon: <RiSettings4Line className="h-5 w-5" />,
     labelKey: 'dashboard.menu.settings',
     children: [
       {
         key: '/settings/profile',
-        icon: <RiUserSettingsLine className="text-lg" />,
+        icon: <RiUser3Line className="h-5 w-5" />,
         labelKey: 'settings.menu.profile',
       },
       {
-        key: '/settings/appearance',
-        icon: <RiPaletteLine className="text-lg" />,
-        labelKey: 'settings.menu.appearance',
-      },
-      {
-        key: '/settings/language',
-        icon: <RiGlobalLine className="text-lg" />,
-        labelKey: 'settings.menu.language',
-      },
-      {
         key: '/settings/security',
-        icon: <RiShieldUserLine className="text-lg" />,
+        icon: <RiShieldKeyholeLine className="h-5 w-5" />,
         labelKey: 'settings.menu.security',
       },
       {
         key: '/settings/notifications',
-        icon: <RiNotificationLine className="text-lg" />,
+        icon: <RiBellLine className="h-5 w-5" />,
         labelKey: 'settings.menu.notifications',
       },
     ],
@@ -107,6 +96,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { t } = useTranslation('common')
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
 
+  // 处理初始展开状态
+  useEffect(() => {
+    if (pathname?.startsWith('/settings')) {
+      setExpandedItem('/settings')
+    }
+  }, [pathname])
+
   return (
     <div className="min-h-screen bg-background">
       {/* 侧边栏 */}
@@ -126,23 +122,51 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 ) : item.children ? (
                   <div key={item.key}>
                     <Button
-                      variant={pathname.startsWith(item.key) ? 'secondary' : 'ghost'}
+                      variant={pathname?.startsWith(item.key) ? 'default' : 'ghost'}
                       className={cn(
                         'w-full justify-start gap-3 font-normal',
-                        item.disabled && 'opacity-50 cursor-not-allowed'
+                        item.disabled && 'opacity-50 cursor-not-allowed',
+                        pathname?.startsWith(item.key) && item.children
+                          ? 'bg-primary/10 text-primary hover:bg-primary/20'
+                          : pathname?.startsWith(item.key)
+                            ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                            : ''
                       )}
-                      onClick={() => setExpandedItem(expandedItem === item.key ? null : item.key)}
+                      onClick={() => {
+                        if (item.children) {
+                          setExpandedItem(expandedItem === item.key ? null : item.key)
+                          if (item.key === '/settings') {
+                            router.push(item.children[0].key)
+                          }
+                        } else if (!item.disabled) {
+                          router.push(item.key)
+                          setExpandedItem(null)
+                        }
+                      }}
                     >
                       {item.icon}
                       {t(item.labelKey)}
+                      {item.children && (
+                        <RiArrowRightSLine
+                          className={cn(
+                            'ml-auto text-lg transition-transform',
+                            expandedItem === item.key && 'rotate-90'
+                          )}
+                        />
+                      )}
                     </Button>
-                    {expandedItem === item.key && (
+                    {expandedItem === item.key && item.children && (
                       <div className="ml-4 mt-1 space-y-1">
                         {item.children.map(child => (
                           <Button
                             key={child.key}
-                            variant={pathname === child.key ? 'secondary' : 'ghost'}
-                            className="w-full justify-start gap-3 font-normal text-sm"
+                            variant={pathname === child.key ? 'default' : 'ghost'}
+                            className={cn(
+                              'w-full justify-start gap-3 font-normal text-sm',
+                              pathname === child.key
+                                ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                                : 'hover:bg-accent'
+                            )}
                             onClick={() => router.push(child.key)}
                           >
                             {child.icon}
@@ -155,12 +179,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 ) : (
                   <Button
                     key={item.key}
-                    variant={pathname === item.key ? 'secondary' : 'ghost'}
+                    variant={pathname === item.key ? 'default' : 'ghost'}
                     className={cn(
                       'w-full justify-start gap-3 font-normal',
-                      item.disabled && 'opacity-50 cursor-not-allowed'
+                      item.disabled && 'opacity-50 cursor-not-allowed',
+                      pathname === item.key &&
+                        'bg-primary text-primary-foreground hover:bg-primary/90'
                     )}
-                    onClick={() => !item.disabled && router.push(item.key)}
+                    onClick={() => {
+                      if (!item.disabled) {
+                        router.push(item.key)
+                        setExpandedItem(null)
+                      }
+                    }}
                   >
                     {item.icon}
                     {t(item.labelKey)}
