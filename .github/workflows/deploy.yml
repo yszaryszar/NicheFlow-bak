@@ -8,10 +8,24 @@ on:
       - ".github/workflows/**"
 
 jobs:
+  check-backend-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.check.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - id: check
+        run: |
+          git diff --name-only HEAD^ HEAD > changes.txt
+          echo "has_changes=$(grep -q '^backend/' changes.txt && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+
   deploy-backend-hk:
     name: Deploy Backend to Hong Kong
+    needs: check-backend-changes
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'backend/') || contains(github.event.head_commit.added, 'backend/')
+    if: needs.check-backend-changes.outputs.has_changes == 'true'
 
     steps:
       - uses: actions/checkout@v4
@@ -122,8 +136,9 @@ jobs:
 
   deploy-backend-us:
     name: Deploy Backend to US
+    needs: check-backend-changes
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'backend/') || contains(github.event.head_commit.added, 'backend/')
+    if: needs.check-backend-changes.outputs.has_changes == 'true'
 
     steps:
       - uses: actions/checkout@v4
