@@ -56,32 +56,32 @@ const sidebarItems: SidebarItem[] = [
     labelKey: 'dashboard.menu.videos',
   },
   {
-    key: 'settings',
+    key: '/settings',
     icon: <RiSettings4Line className="h-5 w-5" />,
     labelKey: 'dashboard.menu.settings',
     children: [
       {
-        key: 'profile',
+        key: '/settings/profile',
         icon: <RiUser3Line className="h-5 w-5" />,
         labelKey: 'settings.menu.profile',
       },
       {
-        key: 'appearance',
+        key: '/settings/appearance',
         icon: <RiPaletteLine className="h-5 w-5" />,
         labelKey: 'settings.menu.appearance',
       },
       {
-        key: 'language',
+        key: '/settings/language',
         icon: <RiGlobalLine className="h-5 w-5" />,
         labelKey: 'settings.menu.language',
       },
       {
-        key: 'security',
+        key: '/settings/security',
         icon: <RiShieldKeyholeLine className="h-5 w-5" />,
         labelKey: 'settings.menu.security',
       },
       {
-        key: 'notifications',
+        key: '/settings/notifications',
         icon: <RiBellLine className="h-5 w-5" />,
         labelKey: 'settings.menu.notifications',
       },
