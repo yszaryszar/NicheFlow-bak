@@ -23,7 +23,7 @@ on:
 
 jobs:
   deploy-backend-hk:
-    name: Deploy Backend to Hong Kong
+    name: Deploy Backend to HK
     runs-on: ubuntu-latest
 
     steps:
@@ -64,6 +64,14 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY_HK }}
           script: |
+            # 配置 AWS 认证
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            export AWS_DEFAULT_REGION=ap-east-1
+
+            # 登录 ECR
+            aws ecr get-login-password --region ap-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-hk.outputs.registry }}
+
             # 复制配置文件
             cat > config.prod.yaml << 'EOL'
             app:
@@ -182,6 +190,14 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY_US }}
           script: |
+            # 配置 AWS 认证
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            export AWS_DEFAULT_REGION=us-east-1
+
+            # 登录 ECR
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-us.outputs.registry }}
+
             # 复制配置文件
             cat > config.prod.yaml << 'EOL'
             app:
