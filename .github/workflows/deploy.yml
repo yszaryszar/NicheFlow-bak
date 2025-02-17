@@ -161,7 +161,54 @@ jobs:
             EOL
 
             # 复制 docker-compose 文件
-            # curl -o docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/main/backend/docker-compose.yml
+            cat > docker-compose.yml << 'EOL'
+            version: '3.8'
+
+            services:
+              api:
+                image: ${ECR_REGISTRY:-nicheflow}/nicheflow-api:${IMAGE_TAG:-latest}
+                container_name: nicheflow-api
+                restart: unless-stopped
+                ports:
+                  - "80:80"
+                environment:
+                  - APP_ENV=production
+                  - TZ=Asia/Shanghai
+                  - AWS_REGION=${AWS_REGION:-ap-east-1}
+                  - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                  - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                  - DB_HOST=${DB_HOST}
+                  - DB_PORT=${DB_PORT}
+                  - DB_NAME=${DB_NAME}
+                  - DB_USER=${DB_USER}
+                  - DB_PASSWORD=${DB_PASSWORD}
+                  - REDIS_HOST=${REDIS_HOST}
+                  - REDIS_PORT=${REDIS_PORT}
+                  - REDIS_PASSWORD=${REDIS_PASSWORD}
+                volumes:
+                  - ./configs:/etc/nicheflow/configs
+                  - ./.env.production:/etc/nicheflow/.env
+                networks:
+                  - nicheflow-network
+                healthcheck:
+                  test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/health"]
+                  interval: 30s
+                  timeout: 10s
+                  retries: 3
+                  start_period: 20s
+                deploy:
+                  resources:
+                    limits:
+                      cpus: '1'
+                      memory: 1G
+                    reservations:
+                      cpus: '0.5'
+                      memory: 512M
+
+            networks:
+              nicheflow-network:
+                driver: bridge
+            EOL
 
             # 拉取新镜像并重启服务
             docker pull ${{ steps.login-ecr-hk.outputs.registry }}/nicheflow-api:${{ github.sha }}
@@ -309,7 +356,54 @@ jobs:
             EOL
 
             # 复制 docker-compose 文件
-            # curl -o docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/main/backend/docker-compose.yml
+            cat > docker-compose.yml << 'EOL'
+            version: '3.8'
+
+            services:
+              api:
+                image: ${ECR_REGISTRY:-nicheflow}/nicheflow-api:${IMAGE_TAG:-latest}
+                container_name: nicheflow-api
+                restart: unless-stopped
+                ports:
+                  - "80:80"
+                environment:
+                  - APP_ENV=production
+                  - TZ=Asia/Shanghai
+                  - AWS_REGION=${AWS_REGION:-us-east-1}
+                  - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                  - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                  - DB_HOST=${DB_HOST}
+                  - DB_PORT=${DB_PORT}
+                  - DB_NAME=${DB_NAME}
+                  - DB_USER=${DB_USER}
+                  - DB_PASSWORD=${DB_PASSWORD}
+                  - REDIS_HOST=${REDIS_HOST}
+                  - REDIS_PORT=${REDIS_PORT}
+                  - REDIS_PASSWORD=${REDIS_PASSWORD}
+                volumes:
+                  - ./configs:/etc/nicheflow/configs
+                  - ./.env.production:/etc/nicheflow/.env
+                networks:
+                  - nicheflow-network
+                healthcheck:
+                  test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/health"]
+                  interval: 30s
+                  timeout: 10s
+                  retries: 3
+                  start_period: 20s
+                deploy:
+                  resources:
+                    limits:
+                      cpus: '1'
+                      memory: 1G
+                    reservations:
+                      cpus: '0.5'
+                      memory: 512M
+
+            networks:
+              nicheflow-network:
+                driver: bridge
+            EOL
 
             # 拉取新镜像并重启服务
             docker pull ${{ steps.login-ecr-us.outputs.registry }}/nicheflow-api:${{ github.sha }}
