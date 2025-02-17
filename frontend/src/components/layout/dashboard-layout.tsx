@@ -12,6 +12,8 @@ import {
   RiUser3Line,
   RiShieldKeyholeLine,
   RiBellLine,
+  RiPaletteLine,
+  RiGlobalLine,
 } from 'react-icons/ri'
 import { Logo } from '@/components/ui/logo'
 import { ThemeSwitch } from '@/components/ui/theme-switch'
@@ -39,49 +41,55 @@ type SidebarItem =
 
 const sidebarItems: SidebarItem[] = [
   {
-    key: '/',
-    icon: <RiDashboardLine className="text-lg" />,
+    key: 'dashboard',
+    icon: <RiDashboardLine className="h-5 w-5" />,
     labelKey: 'dashboard.menu.workspace',
   },
   {
-    key: '/scripts',
-    icon: <RiFileTextLine className="text-lg" />,
+    key: 'scripts',
+    icon: <RiFileTextLine className="h-5 w-5" />,
     labelKey: 'dashboard.menu.scripts',
   },
   {
-    key: '/videos',
-    icon: <RiVideoLine className="text-lg" />,
+    key: 'videos',
+    icon: <RiVideoLine className="h-5 w-5" />,
     labelKey: 'dashboard.menu.videos',
-    disabled: true,
   },
   {
-    type: 'divider',
-  },
-  {
-    key: '/settings',
+    key: 'settings',
     icon: <RiSettings4Line className="h-5 w-5" />,
     labelKey: 'dashboard.menu.settings',
     children: [
       {
-        key: '/settings/profile',
+        key: 'profile',
         icon: <RiUser3Line className="h-5 w-5" />,
         labelKey: 'settings.menu.profile',
       },
       {
-        key: '/settings/security',
+        key: 'appearance',
+        icon: <RiPaletteLine className="h-5 w-5" />,
+        labelKey: 'settings.menu.appearance',
+      },
+      {
+        key: 'language',
+        icon: <RiGlobalLine className="h-5 w-5" />,
+        labelKey: 'settings.menu.language',
+      },
+      {
+        key: 'security',
         icon: <RiShieldKeyholeLine className="h-5 w-5" />,
         labelKey: 'settings.menu.security',
       },
       {
-        key: '/settings/notifications',
+        key: 'notifications',
         icon: <RiBellLine className="h-5 w-5" />,
         labelKey: 'settings.menu.notifications',
       },
     ],
   },
   {
-    key: '/support',
-    icon: <RiCustomerServiceLine className="text-lg" />,
+    key: 'support',
+    icon: <RiCustomerServiceLine className="h-5 w-5" />,
     labelKey: 'dashboard.menu.support',
   },
 ]
