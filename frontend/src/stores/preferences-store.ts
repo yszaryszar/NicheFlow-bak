@@ -40,12 +40,16 @@ const usePreferencesStore = create<PreferencesState>()(
       fetchPreferences: async () => {
         try {
           set({ isLoading: true, error: null })
-          const response = await fetch('/api/v1/user/preferences')
+          const response = await fetch('/v1/user/preferences')
           if (!response.ok) {
             throw new Error('获取偏好设置失败')
           }
           const data = await response.json()
-          set({ preferences: data.data })
+          if (data.code === 200) {
+            set({ preferences: { ...get().preferences, ...data.data } })
+          } else {
+            throw new Error(data.message || '获取偏好设置失败')
+          }
         } catch (error) {
           set({ error: (error as Error).message })
           toast.error('获取偏好设置失败')
@@ -57,7 +61,7 @@ const usePreferencesStore = create<PreferencesState>()(
       updatePreferences: async (newPreferences: Partial<Preferences>) => {
         try {
           set({ isLoading: true, error: null })
-          const response = await fetch('/api/v1/user/preferences', {
+          const response = await fetch('/v1/user/preferences', {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -67,8 +71,13 @@ const usePreferencesStore = create<PreferencesState>()(
           if (!response.ok) {
             throw new Error('更新偏好设置失败')
           }
-          set({ preferences: { ...get().preferences, ...newPreferences } })
-          toast.success('偏好设置已更新')
+          const data = await response.json()
+          if (data.code === 200) {
+            set({ preferences: { ...get().preferences, ...newPreferences } })
+            toast.success('偏好设置已更新')
+          } else {
+            throw new Error(data.message || '更新偏好设置失败')
+          }
         } catch (error) {
           set({ error: (error as Error).message })
           toast.error('更新偏好设置失败')

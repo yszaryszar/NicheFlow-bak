@@ -82,44 +82,44 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 		}
 
 		// 用户相关路由
-		user := v1.Group("/user")
-		user.Use(middlewareManager.GetAuthMiddleware())
+		userGroup := v1.Group("/user")
+		userGroup.Use(middleware.AuthMiddleware())
 		{
 			// @Summary 获取用户个人资料
 			// @Tags 用户
-			user.GET("/profile", userHandler.GetProfile)
+			userGroup.GET("/profile", userHandler.GetProfile)
 
 			// @Summary 更新用户个人资料
 			// @Tags 用户
-			user.PUT("/profile", userHandler.UpdateProfile)
+			userGroup.PUT("/profile", userHandler.UpdateProfile)
 
 			// @Summary 获取用户偏好设置
 			// @Tags 用户
-			user.GET("/preferences", userHandler.GetPreferences)
+			userGroup.GET("/preferences", userHandler.GetPreferences)
 
 			// @Summary 更新用户偏好设置
 			// @Tags 用户
-			user.PUT("/preferences", userHandler.UpdatePreferences)
+			userGroup.PUT("/preferences", userHandler.UpdatePreferences)
 
 			// @Summary 获取用户社交账号
 			// @Tags 用户
-			user.GET("/social-accounts", userHandler.GetSocialAccounts)
+			userGroup.GET("/social-accounts", userHandler.GetSocialAccounts)
 
 			// @Summary 添加用户社交账号
 			// @Tags 用户
-			user.POST("/social-accounts", userHandler.LinkSocialAccount)
+			userGroup.POST("/social-accounts", userHandler.LinkSocialAccount)
 
 			// @Summary 删除用户社交账号
 			// @Tags 用户
-			user.DELETE("/social-accounts/:provider/:accountId", userHandler.UnlinkSocialAccount)
+			userGroup.DELETE("/social-accounts/:provider/:accountId", userHandler.UnlinkSocialAccount)
 
 			// @Summary 获取用户使用统计
 			// @Tags 用户
-			user.GET("/usage", userHandler.GetUsage)
+			userGroup.GET("/usage", userHandler.GetUsage)
 
 			// @Summary 获取用户订阅信息
 			// @Tags 用户
-			user.GET("/subscription", userHandler.GetSubscription)
+			userGroup.GET("/subscription", userHandler.GetSubscription)
 		}
 
 		// Webhook 路由

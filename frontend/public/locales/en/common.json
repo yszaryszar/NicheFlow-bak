@@ -1,21 +1,21 @@
 {
   "hero": {
     "title": "NicheFlow",
-    "subtitle": "One-Stop Content Creation & Management Platform",
-    "description": "Making content creation simpler and management more efficient"
+    "subtitle": "All-in-One Content Creation & Management Platform",
+    "description": "Make content creation simpler and management more efficient"
   },
   "features": {
     "contentGeneration": {
       "title": "AI Content Generation",
-      "description": "AI-powered content generation providing high-quality, original articles"
+      "description": "AI-powered content generation providing high-quality, original content"
     },
     "platformManagement": {
       "title": "Multi-Platform Management",
-      "description": "One-click publishing to major content platforms with unified content management"
+      "description": "One-click publishing to major platforms, unified content management"
     },
     "dataAnalysis": {
-      "title": "Data Analytics",
-      "description": "Comprehensive data analysis for content optimization and decision making"
+      "title": "Data Analysis",
+      "description": "Comprehensive data analysis to optimize content and decision-making"
     }
   },
   "stats": {
@@ -51,10 +51,10 @@
     "about": "About",
     "aboutUs": "About Us",
     "contact": "Contact",
-    "terms": "Terms of Use",
+    "terms": "Terms",
     "rights": "All rights reserved."
   },
-  "readyToStart": "Ready to Start Your Content Journey?",
+  "readyToStart": "Ready to start your content creation journey?",
   "joinNicheFlow": "Join NicheFlow and experience intelligent content creation",
   "getStarted": "Get Started",
   "welcomeBack": "Welcome Back",
@@ -88,7 +88,7 @@
       "description": "Manage your personal information and account settings",
       "basicInfo": "Basic Information",
       "changeAvatar": "Change Avatar",
-      "avatarHint": "JPG or PNG, max 2MB",
+      "avatarHint": "Supports JPG, PNG formats, max size 2MB",
       "firstName": "First Name",
       "firstNamePlaceholder": "Enter your first name",
       "lastName": "Last Name",
@@ -101,19 +101,94 @@
     },
     "appearance": {
       "title": "Appearance",
-      "description": "Customize interface appearance and theme"
+      "description": "Customize interface appearance and theme",
+      "theme": "Theme",
+      "themes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      }
     },
     "language": {
       "title": "Language",
-      "description": "Set your preferred language and region"
+      "description": "Set your preferred language and region",
+      "language": "Interface Language",
+      "languages": {
+        "zh": "简体中文",
+        "en": "English"
+      }
     },
     "security": {
       "title": "Security",
-      "description": "Manage your account security and privacy settings"
+      "description": "Manage your account security and privacy settings",
+      "password": {
+        "title": "Password",
+        "description": "Regularly changing your password helps keep your account secure",
+        "change": "Change Password",
+        "current": "Current Password",
+        "new": "New Password",
+        "confirm": "Confirm New Password",
+        "save": "Save Changes",
+        "cancel": "Cancel",
+        "success": "Password changed successfully",
+        "error": "Failed to change password, please try again"
+      },
+      "2fa": {
+        "title": "Two-Factor Authentication",
+        "description": "Add an extra layer of security to your account",
+        "enable": "Enable 2FA",
+        "disable": "Disable 2FA",
+        "scan": "Scan QR Code",
+        "verify": "Verify Code",
+        "backup": "Backup Recovery Codes",
+        "scanDescription": "Scan the QR code below with your authenticator app",
+        "verifyDescription": "Enter the 6-digit code from your authenticator app",
+        "secretKey": "Secret Key",
+        "verificationCode": "Verification Code",
+        "codePlaceholder": "Enter 6-digit code",
+        "back": "Back",
+        "enableSuccess": "Two-factor authentication enabled",
+        "disableSuccess": "Two-factor authentication disabled",
+        "invalidCode": "Invalid verification code",
+        "verifyError": "Verification failed, please try again",
+        "disableError": "Operation failed, please try again"
+      },
+      "loginHistory": {
+        "title": "Login History",
+        "description": "View your account login records",
+        "details": "View Details",
+        "time": "Time",
+        "location": "Location",
+        "device": "Device",
+        "ip": "IP Address"
+      },
+      "devices": {
+        "title": "Device Management",
+        "description": "Manage your logged-in devices",
+        "current": "Current Device",
+        "otherDevices": "Other Devices",
+        "lastActive": "Last Active",
+        "logout": "Sign Out",
+        "logoutAll": "Sign Out All Devices",
+        "logoutSuccess": "Device signed out successfully",
+        "logoutError": "Failed to sign out, please try again"
+      }
     },
     "notifications": {
       "title": "Notifications",
-      "description": "Customize notification preferences and alert methods"
+      "description": "Manage how you receive notifications",
+      "email": {
+        "title": "Email Notifications",
+        "description": "Receive email notifications for important updates and activities"
+      },
+      "mobile": {
+        "title": "Mobile Notifications",
+        "description": "Receive instant notifications on your mobile device"
+      },
+      "web": {
+        "title": "Web Notifications",
+        "description": "Receive real-time notifications in your browser"
+      }
     }
   }
 }
