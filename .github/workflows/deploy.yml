@@ -210,11 +210,30 @@ jobs:
                 driver: bridge
             EOL
 
+            # 创建环境变量文件
+            cat > .env << 'EOL'
+            ECR_REGISTRY=${{ steps.login-ecr-hk.outputs.registry }}
+            IMAGE_TAG=${{ github.sha }}
+            DB_HOST=${{ secrets.DB_HOST_HK }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            REDIS_HOST=${{ secrets.REDIS_HOST_HK }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+            AWS_REGION=ap-east-1
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
+            ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+            CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
+            EOL
+
             # 拉取新镜像并重启服务
             docker pull ${{ steps.login-ecr-hk.outputs.registry }}/nicheflow-api:${{ github.sha }}
             docker compose down
-            echo "ECR_REGISTRY=${{ steps.login-ecr-hk.outputs.registry }}" > .env
-            echo "IMAGE_TAG=${{ github.sha }}" >> .env
             docker compose up -d
 
   deploy-backend-us:
@@ -405,11 +424,30 @@ jobs:
                 driver: bridge
             EOL
 
+            # 创建环境变量文件
+            cat > .env << 'EOL'
+            ECR_REGISTRY=${{ steps.login-ecr-us.outputs.registry }}
+            IMAGE_TAG=${{ github.sha }}
+            DB_HOST=${{ secrets.DB_HOST_US }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            REDIS_HOST=${{ secrets.REDIS_HOST_US }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+            AWS_REGION=us-east-1
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
+            ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+            CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
+            EOL
+
             # 拉取新镜像并重启服务
             docker pull ${{ steps.login-ecr-us.outputs.registry }}/nicheflow-api:${{ github.sha }}
             docker compose down
-            echo "ECR_REGISTRY=${{ steps.login-ecr-us.outputs.registry }}" > .env
-            echo "IMAGE_TAG=${{ github.sha }}" >> .env
             docker compose up -d
 
   notify:
