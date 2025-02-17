@@ -72,8 +72,13 @@ jobs:
             # 登录 ECR
             aws ecr get-login-password --region ap-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-hk.outputs.registry }}
 
+            # 创建工作目录
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/nicheflow
+            cd /home/${{ secrets.EC2_USERNAME }}/nicheflow
+
             # 复制配置文件
-            cat > config.prod.yaml << 'EOL'
+            mkdir -p configs
+            cat > configs/config.prod.yaml << 'EOL'
             app:
               name: NicheFlow
               version: 0.1.0
@@ -135,16 +140,33 @@ jobs:
             EOL
 
             # 设置环境变量
-            cat > .env << 'EOL'
+            cat > .env.production << 'EOL'
+            APP_ENV=production
+            TZ=Asia/Shanghai
+            AWS_REGION=ap-east-1
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            DB_HOST=${{ secrets.DB_HOST_HK }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            REDIS_HOST=${{ secrets.REDIS_HOST_HK }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
             ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
             CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
             EOL
 
+            # 复制 docker-compose 文件
+            # curl -o docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/main/backend/docker-compose.yml
+
             # 拉取新镜像并重启服务
             docker pull ${{ steps.login-ecr-hk.outputs.registry }}/nicheflow-api:${{ github.sha }}
             docker compose down
+            echo "ECR_REGISTRY=${{ steps.login-ecr-hk.outputs.registry }}" > .env
             echo "IMAGE_TAG=${{ github.sha }}" >> .env
             docker compose up -d
 
@@ -198,8 +220,13 @@ jobs:
             # 登录 ECR
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-us.outputs.registry }}
 
+            # 创建工作目录
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/nicheflow
+            cd /home/${{ secrets.EC2_USERNAME }}/nicheflow
+
             # 复制配置文件
-            cat > config.prod.yaml << 'EOL'
+            mkdir -p configs
+            cat > configs/config.prod.yaml << 'EOL'
             app:
               name: NicheFlow
               version: 0.1.0
@@ -261,16 +288,33 @@ jobs:
             EOL
 
             # 设置环境变量
-            cat > .env << 'EOL'
+            cat > .env.production << 'EOL'
+            APP_ENV=production
+            TZ=Asia/Shanghai
+            AWS_REGION=us-east-1
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            DB_HOST=${{ secrets.DB_HOST_US }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            REDIS_HOST=${{ secrets.REDIS_HOST_US }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
             ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
             CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
             EOL
 
+            # 复制 docker-compose 文件
+            # curl -o docker-compose.yml https://raw.githubusercontent.com/${{ github.repository }}/main/backend/docker-compose.yml
+
             # 拉取新镜像并重启服务
             docker pull ${{ steps.login-ecr-us.outputs.registry }}/nicheflow-api:${{ github.sha }}
             docker compose down
+            echo "ECR_REGISTRY=${{ steps.login-ecr-us.outputs.registry }}" > .env
             echo "IMAGE_TAG=${{ github.sha }}" >> .env
             docker compose up -d
 
