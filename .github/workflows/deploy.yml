@@ -1,9 +1,12 @@
-name: Deploy NicheFlow Backend
+name: Deploy Backend
 
 on:
   push:
     branches:
       - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/**"
   workflow_dispatch:
     inputs:
       environment:
@@ -19,26 +22,9 @@ on:
         type: string
 
 jobs:
-  check-backend-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      has_changes: ${{ steps.check.outputs.has_changes }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-      - name: Check for backend changes
-        id: check
-        run: |
-          git fetch origin main
-          git diff --name-only origin/main...HEAD > changes.txt
-          echo "has_changes=$(grep -q -E '^(backend/|.github/workflows/)' changes.txt && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
-
   deploy-backend-hk:
     name: Deploy Backend to Hong Kong
-    needs: check-backend-changes
     runs-on: ubuntu-latest
-    if: needs.check-backend-changes.outputs.has_changes == 'true'
 
     steps:
       - uses: actions/checkout@v4
@@ -156,9 +142,7 @@ jobs:
 
   deploy-backend-us:
     name: Deploy Backend to US
-    needs: check-backend-changes
     runs-on: ubuntu-latest
-    if: needs.check-backend-changes.outputs.has_changes == 'true'
 
     steps:
       - uses: actions/checkout@v4
