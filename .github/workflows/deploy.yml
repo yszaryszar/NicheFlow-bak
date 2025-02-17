@@ -2,7 +2,8 @@ name: Deploy NicheFlow Backend
 
 on:
   push:
-    branches: [main, develop]
+    branches:
+      - main
     paths:
       - "backend/**"
       - ".github/workflows/**"
@@ -40,6 +41,13 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr-hk
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Create ECR repository if not exists
+        run: |
+          aws ecr describe-repositories --repository-names nicheflow-api || \
+          aws ecr create-repository \
+            --repository-name nicheflow-api \
+            --image-scanning-configuration scanOnPush=true
 
       - name: Build and push Docker image
         env:
@@ -148,11 +156,18 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
+          aws-region: us-east-1
 
       - name: Login to Amazon ECR
         id: login-ecr-us
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Create ECR repository if not exists
+        run: |
+          aws ecr describe-repositories --repository-names nicheflow-api || \
+          aws ecr create-repository \
+            --repository-name nicheflow-api \
+            --image-scanning-configuration scanOnPush=true
 
       - name: Build and push Docker image
         env:
