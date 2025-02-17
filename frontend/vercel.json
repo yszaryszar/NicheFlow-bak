@@ -41,5 +41,17 @@
       "source": "/v1/:path*",
       "destination": "https://api.getnicheflow.com/v1/:path*"
     }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./",
+  "builds": [
+    {
+      "src": "frontend/next.config.js",
+      "use": "@vercel/next"
+    }
   ]
 }
