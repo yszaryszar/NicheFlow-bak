@@ -3,7 +3,9 @@
 package config
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -113,21 +115,31 @@ type AnthropicConfig struct {
 
 var cfg *Config
 
-// LoadConfig 加载应用配置
-//
-// 返回:
-//   - *Config: 配置对象
-//   - error: 错误信息
-//
-// 说明:
-//
-//	该函数完成以下操作：
-//	1. 加载环境变量文件
-//	2. 设置配置文件路径和类型
-//	3. 启用环境变量替换
-//	4. 读取并解析配置
-//	5. 替换配置中的环境变量
+// LoadConfig 加载配置
 func LoadConfig() (*Config, error) {
+	v := viper.New()
+
+	// 设置基本配置
+	v.SetConfigName("config")
+	v.SetConfigType("yaml")
+	v.AddConfigPath("configs")
+
+	// 绑定环境变量
+	bindEnvs(v, "")
+
+	// 首先尝试从 SSM 加载配置
+	cfg, err := LoadFromSSM(context.Background())
+	if err == nil {
+		return cfg, nil
+	}
+
+	// 如果从 SSM 加载失败，回退到本地配置文件
+	log.Printf("从 SSM 加载配置失败，尝试从本地文件加载: %v", err)
+	return loadLocalConfig()
+}
+
+// loadLocalConfig 从本地文件加载配置
+func loadLocalConfig() (*Config, error) {
 	if cfg != nil {
 		return cfg, nil
 	}

@@ -2,487 +2,146 @@ name: Deploy Backend
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - "backend/**"
-      - ".github/workflows/**"
+      - ".github/workflows/deploy.yml"
   workflow_dispatch:
-    inputs:
-      environment:
-        description: "部署环境"
-        required: true
-        default: "production"
-        type: choice
-        options:
-          - production
-      reason:
-        description: "部署原因"
-        required: false
-        type: string
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   deploy-backend-hk:
-    name: Deploy Backend to HK
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials (HK)
+      - name: Configure AWS credentials for Hong Kong
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-east-1
 
-      - name: Login to Amazon ECR
+      - name: Login to Amazon ECR Hong Kong
         id: login-ecr-hk
         uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: private
+          mask-password: true
 
-      - name: Create ECR repository if not exists
-        run: |
-          aws ecr describe-repositories --repository-names nicheflow-api || \
-          aws ecr create-repository \
-            --repository-name nicheflow-api \
-            --image-scanning-configuration scanOnPush=true
-
-      - name: Build and push Docker image
+      - name: Build and push image to Amazon ECR Hong Kong
         env:
           ECR_REGISTRY: ${{ steps.login-ecr-hk.outputs.registry }}
-          ECR_REPOSITORY: nicheflow-api
           IMAGE_TAG: ${{ github.sha }}
         run: |
           cd backend
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/nicheflow-api:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/nicheflow-api:$IMAGE_TAG
 
-      - name: Deploy to EC2 (HK)
+      - name: Deploy to EC2 Hong Kong
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST_HK }}
-          username: ${{ secrets.EC2_USERNAME }}
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY_HK }}
+          port: 22
           script: |
-            # 配置 AWS 认证
-            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            export AWS_DEFAULT_REGION=ap-east-1
-
-            # 登录 ECR
-            aws ecr get-login-password --region ap-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-hk.outputs.registry }}
-
-            # 创建工作目录
-            mkdir -p /home/${{ secrets.EC2_USERNAME }}/nicheflow
-            cd /home/${{ secrets.EC2_USERNAME }}/nicheflow
-
-            # 复制配置文件
-            mkdir -p configs
-            cat > configs/config.prod.yaml << 'EOL'
-            app:
-              name: NicheFlow
-              version: 0.1.0
-              env: production
-              mode: release
-              port: 80
-              base_url: https://api.getnicheflow.com
-              region: hk
-
-            database:
-              driver: postgres
-              host: ${{ secrets.DB_HOST_HK }}
-              port: ${{ secrets.DB_PORT }}
-              name: ${{ secrets.DB_NAME }}
-              user: ${{ secrets.DB_USER }}
-              password: ${{ secrets.DB_PASSWORD }}
-              ssl_mode: require
-              max_idle_conns: 10
-              max_open_conns: 100
-              conn_max_lifetime: 1h
-
-            redis:
-              host: ${{ secrets.REDIS_HOST_HK }}
-              port: ${{ secrets.REDIS_PORT }}
-              password: ${{ secrets.REDIS_PASSWORD }}
-              db: 0
-              tls_enable: true
-
-            openai:
-              model: gpt-4-turbo-preview
-              max_tokens: 2000
-              temperature: 0.7
-
-            anthropic:
-              model: claude-3-opus
-              max_tokens: 2000
-              temperature: 0.7
-
-            middleware:
-              rate_limit:
-                enabled: true
-                limit: 100
-                duration: 1m
-              cors:
-                allow_origins:
-                  - https://getnicheflow.com
-                  - https://www.getnicheflow.com
-                allow_methods:
-                  - GET
-                  - POST
-                  - PUT
-                  - DELETE
-                  - OPTIONS
-                allow_headers:
-                  - Authorization
-                  - Content-Type
-                  - X-Clerk-User-Id
-                max_age: 300
-            EOL
+            # 克隆仓库获取最新的 docker-compose.yml
+            rm -rf NicheFlow
+            git clone https://github.com/yszaryszar/NicheFlow.git
+            cd NicheFlow/backend
 
             # 设置环境变量
-            cat > .env.production << 'EOL'
-            APP_ENV=production
-            TZ=Asia/Shanghai
-            AWS_REGION=ap-east-1
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            DB_HOST=${{ secrets.DB_HOST_HK }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            REDIS_HOST=${{ secrets.REDIS_HOST_HK }}
-            REDIS_PORT=${{ secrets.REDIS_PORT }}
-            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-            OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
-            ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
-            CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
-            EOL
+            export ECR_REGISTRY="${{ steps.login-ecr-hk.outputs.registry }}"
+            export IMAGE_TAG="${{ github.sha }}"
+            export AWS_REGION="ap-east-1"
 
-            # 复制 docker-compose 文件
-            cat > docker-compose.yml << 'EOL'
-            version: '3.8'
+            # 停止并删除旧容器
+            docker compose down || true
 
-            services:
-              api:
-                image: ${ECR_REGISTRY:-nicheflow}/nicheflow-api:${IMAGE_TAG:-latest}
-                container_name: nicheflow-api
-                restart: unless-stopped
-                ports:
-                  - "80:80"
-                environment:
-                  - APP_ENV=production
-                  - TZ=Asia/Shanghai
-                  - AWS_REGION=${AWS_REGION:-ap-east-1}
-                  - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                  - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                  - DB_HOST=${DB_HOST}
-                  - DB_PORT=${DB_PORT}
-                  - DB_NAME=${DB_NAME}
-                  - DB_USER=${DB_USER}
-                  - DB_PASSWORD=${DB_PASSWORD}
-                  - REDIS_HOST=${REDIS_HOST}
-                  - REDIS_PORT=${REDIS_PORT}
-                  - REDIS_PASSWORD=${REDIS_PASSWORD}
-                  - OPENAI_API_KEY=${OPENAI_API_KEY}
-                  - OPENAI_ORG_ID=${OPENAI_ORG_ID}
-                  - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-                  - CLERK_API_KEY=${CLERK_API_KEY}
-                volumes:
-                  - ./configs:/etc/nicheflow/configs:ro
-                  - ./.env.production:/etc/nicheflow/.env:ro
-                networks:
-                  - nicheflow-network
-                healthcheck:
-                  test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
-                  interval: 10s
-                  timeout: 5s
-                  retries: 5
-                  start_period: 30s
-                deploy:
-                  resources:
-                    limits:
-                      cpus: '1'
-                      memory: 1G
-                    reservations:
-                      cpus: '0.5'
-                      memory: 512M
+            # 拉取新镜像
+            aws ecr get-login-password --region ap-east-1 | docker login --username AWS --password-stdin $ECR_REGISTRY
+            docker pull $ECR_REGISTRY/nicheflow-api:$IMAGE_TAG
 
-            networks:
-              nicheflow-network:
-                driver: bridge
-            EOL
-
-            # 创建环境变量文件
-            cat > .env << 'EOL'
-            ECR_REGISTRY=${{ steps.login-ecr-hk.outputs.registry }}
-            IMAGE_TAG=${{ github.sha }}
-            DB_HOST=${{ secrets.DB_HOST_HK }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            REDIS_HOST=${{ secrets.REDIS_HOST_HK }}
-            REDIS_PORT=${{ secrets.REDIS_PORT }}
-            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-            AWS_REGION=ap-east-1
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-            OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
-            ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
-            CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
-            EOL
-
-            # 拉取新镜像并重启服务
-            docker pull ${{ steps.login-ecr-hk.outputs.registry }}/nicheflow-api:${{ github.sha }}
-            docker compose down
+            # 启动新容器
             docker compose up -d
 
+            # 清理未使用的镜像
+            docker image prune -f
+
   deploy-backend-us:
-    name: Deploy Backend to US
     runs-on: ubuntu-latest
+    needs: deploy-backend-hk
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials (US)
+      - name: Configure AWS credentials for US
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
-      - name: Login to Amazon ECR
+      - name: Login to Amazon ECR US
         id: login-ecr-us
         uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: private
+          mask-password: true
 
-      - name: Create ECR repository if not exists
-        run: |
-          aws ecr describe-repositories --repository-names nicheflow-api || \
-          aws ecr create-repository \
-            --repository-name nicheflow-api \
-            --image-scanning-configuration scanOnPush=true
-
-      - name: Build and push Docker image
+      - name: Build and push image to Amazon ECR US
         env:
           ECR_REGISTRY: ${{ steps.login-ecr-us.outputs.registry }}
-          ECR_REPOSITORY: nicheflow-api
           IMAGE_TAG: ${{ github.sha }}
         run: |
           cd backend
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/nicheflow-api:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/nicheflow-api:$IMAGE_TAG
 
-      - name: Deploy to EC2 (US)
+      - name: Deploy to EC2 US
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST_US }}
-          username: ${{ secrets.EC2_USERNAME }}
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY_US }}
+          port: 22
           script: |
-            # 配置 AWS 认证
-            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            export AWS_DEFAULT_REGION=us-east-1
-
-            # 登录 ECR
-            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr-us.outputs.registry }}
-
-            # 创建工作目录
-            mkdir -p /home/${{ secrets.EC2_USERNAME }}/nicheflow
-            cd /home/${{ secrets.EC2_USERNAME }}/nicheflow
-
-            # 复制配置文件
-            mkdir -p configs
-            cat > configs/config.prod.yaml << 'EOL'
-            app:
-              name: NicheFlow
-              version: 0.1.0
-              env: production
-              mode: release
-              port: 80
-              base_url: https://api.getnicheflow.com
-              region: us
-
-            database:
-              driver: postgres
-              host: ${{ secrets.DB_HOST_US }}
-              port: ${{ secrets.DB_PORT }}
-              name: ${{ secrets.DB_NAME }}
-              user: ${{ secrets.DB_USER }}
-              password: ${{ secrets.DB_PASSWORD }}
-              ssl_mode: require
-              max_idle_conns: 10
-              max_open_conns: 100
-              conn_max_lifetime: 1h
-
-            redis:
-              host: ${{ secrets.REDIS_HOST_US }}
-              port: ${{ secrets.REDIS_PORT }}
-              password: ${{ secrets.REDIS_PASSWORD }}
-              db: 0
-              tls_enable: true
-
-            openai:
-              model: gpt-4-turbo-preview
-              max_tokens: 2000
-              temperature: 0.7
-
-            anthropic:
-              model: claude-3-opus
-              max_tokens: 2000
-              temperature: 0.7
-
-            middleware:
-              rate_limit:
-                enabled: true
-                limit: 100
-                duration: 1m
-              cors:
-                allow_origins:
-                  - https://getnicheflow.com
-                  - https://www.getnicheflow.com
-                allow_methods:
-                  - GET
-                  - POST
-                  - PUT
-                  - DELETE
-                  - OPTIONS
-                allow_headers:
-                  - Authorization
-                  - Content-Type
-                  - X-Clerk-User-Id
-                max_age: 300
-            EOL
+            # 克隆仓库获取最新的 docker-compose.yml
+            rm -rf NicheFlow
+            git clone https://github.com/yszaryszar/NicheFlow.git
+            cd NicheFlow/backend
 
             # 设置环境变量
-            cat > .env.production << 'EOL'
-            APP_ENV=production
-            TZ=Asia/Shanghai
-            AWS_REGION=us-east-1
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            DB_HOST=${{ secrets.DB_HOST_US }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            REDIS_HOST=${{ secrets.REDIS_HOST_US }}
-            REDIS_PORT=${{ secrets.REDIS_PORT }}
-            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-            OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
-            ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
-            CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
-            EOL
+            export ECR_REGISTRY="${{ steps.login-ecr-us.outputs.registry }}"
+            export IMAGE_TAG="${{ github.sha }}"
+            export AWS_REGION="us-east-1"
 
-            # 复制 docker-compose 文件
-            cat > docker-compose.yml << 'EOL'
-            version: '3.8'
+            # 停止并删除旧容器
+            docker compose down || true
 
-            services:
-              api:
-                image: ${ECR_REGISTRY:-nicheflow}/nicheflow-api:${IMAGE_TAG:-latest}
-                container_name: nicheflow-api
-                restart: unless-stopped
-                ports:
-                  - "80:80"
-                environment:
-                  - APP_ENV=production
-                  - TZ=Asia/Shanghai
-                  - AWS_REGION=${AWS_REGION:-us-east-1}
-                  - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                  - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                  - DB_HOST=${DB_HOST}
-                  - DB_PORT=${DB_PORT}
-                  - DB_NAME=${DB_NAME}
-                  - DB_USER=${DB_USER}
-                  - DB_PASSWORD=${DB_PASSWORD}
-                  - REDIS_HOST=${REDIS_HOST}
-                  - REDIS_PORT=${REDIS_PORT}
-                  - REDIS_PASSWORD=${REDIS_PASSWORD}
-                  - OPENAI_API_KEY=${OPENAI_API_KEY}
-                  - OPENAI_ORG_ID=${OPENAI_ORG_ID}
-                  - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-                  - CLERK_API_KEY=${CLERK_API_KEY}
-                volumes:
-                  - ./configs:/etc/nicheflow/configs:ro
-                  - ./.env.production:/etc/nicheflow/.env:ro
-                networks:
-                  - nicheflow-network
-                healthcheck:
-                  test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
-                  interval: 10s
-                  timeout: 5s
-                  retries: 5
-                  start_period: 30s
-                deploy:
-                  resources:
-                    limits:
-                      cpus: '1'
-                      memory: 1G
-                    reservations:
-                      cpus: '0.5'
-                      memory: 512M
+            # 拉取新镜像
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_REGISTRY
+            docker pull $ECR_REGISTRY/nicheflow-api:$IMAGE_TAG
 
-            networks:
-              nicheflow-network:
-                driver: bridge
-            EOL
-
-            # 创建环境变量文件
-            cat > .env << 'EOL'
-            ECR_REGISTRY=${{ steps.login-ecr-us.outputs.registry }}
-            IMAGE_TAG=${{ github.sha }}
-            DB_HOST=${{ secrets.DB_HOST_US }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            REDIS_HOST=${{ secrets.REDIS_HOST_US }}
-            REDIS_PORT=${{ secrets.REDIS_PORT }}
-            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-            AWS_REGION=us-east-1
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-            OPENAI_ORG_ID=${{ secrets.OPENAI_ORG_ID }}
-            ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
-            CLERK_API_KEY=${{ secrets.CLERK_API_KEY }}
-            EOL
-
-            # 拉取新镜像并重启服务
-            docker pull ${{ steps.login-ecr-us.outputs.registry }}/nicheflow-api:${{ github.sha }}
-            docker compose down
+            # 启动新容器
             docker compose up -d
+
+            # 清理未使用的镜像
+            docker image prune -f
 
   notify:
     needs: [deploy-backend-hk, deploy-backend-us]
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Send deployment notification email
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: NicheFlow 后端部署状态通知
-          body: |
-            NicheFlow 后端部署状态报告：
-
-            香港区域: ${{ needs.deploy-backend-hk.result == 'success' && '✅ 部署成功' || '❌ 部署失败' }}
-            美国区域: ${{ needs.deploy-backend-us.result == 'success' && '✅ 部署成功' || '❌ 部署失败' }}
-
-            部署详情：
-            - 部署时间：${{ github.event.head_commit.timestamp }}
-            - 提交信息：${{ github.event.head_commit.message }}
-            - 提交作者：${{ github.event.head_commit.author.name }}
-            - 提交 SHA：${{ github.sha }}
-
-            如有部署失败，请及时检查相关日志和服务状态。
-          to: ${{ secrets.NOTIFICATION_EMAIL }}
-          from: NicheFlow 部署系统 <${{ secrets.EMAIL_USERNAME }}>
+      - name: Notify deployment status
+        run: |
+          if [ "${{ needs.deploy-backend-hk.result }}" == "success" ] && [ "${{ needs.deploy-backend-us.result }}" == "success" ]; then
+            echo "✅ 部署成功完成"
+          else
+            echo "❌ 部署失败"
+            exit 1
+          fi

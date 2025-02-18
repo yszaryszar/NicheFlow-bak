@@ -22,8 +22,13 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o nicheflow-api ./cmd/api
 # 运行阶段
 FROM alpine:latest
 
-# 安装基础工具
-RUN apk --no-cache add ca-certificates tzdata \
+# 安装基础工具和 AWS CLI
+RUN apk --no-cache add \
+    ca-certificates \
+    tzdata \
+    python3 \
+    py3-pip \
+    && pip3 install --no-cache-dir awscli \
     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo "Asia/Shanghai" > /etc/timezone \
     && apk del tzdata
@@ -32,21 +37,23 @@ RUN apk --no-cache add ca-certificates tzdata \
 RUN adduser -D -g '' nicheflow
 
 # 创建必要的目录
-RUN mkdir -p /etc/nicheflow/configs \
-    && chown -R nicheflow:nicheflow /etc/nicheflow
+RUN mkdir -p /app \
+    && chown -R nicheflow:nicheflow /app
 
 # 从构建阶段复制二进制文件
-COPY --from=builder /app/nicheflow-api /usr/local/bin/
-COPY --from=builder /app/configs /etc/nicheflow/configs
+COPY --from=builder /app/nicheflow-api /app/
+
+# 设置环境变量
+ENV APP_ENV=production
 
 # 切换到非 root 用户
 USER nicheflow
 
 # 设置工作目录
-WORKDIR /etc/nicheflow
+WORKDIR /app
 
 # 暴露端口
 EXPOSE 80
 
 # 启动命令
-CMD ["nicheflow-api"] 
+CMD ["./nicheflow-api"] 

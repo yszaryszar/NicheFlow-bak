@@ -19,4 +19,28 @@ ec2_instance_id_hk = "i-xxxxxxxx"  # 香港区域的 EC2 实例 ID
 ec2_instance_id_us = "i-xxxxxxxx"  # 美国区域的 EC2 实例 ID
 
 # 告警通知配置示例
-alert_email = "your-email@example.com"  # 告警通知邮箱地址 
+alert_email = "your-email@example.com"  # 告警通知邮箱地址
+
+# 数据库配置
+db_host_hk = "your-hk-db-host"
+db_host_us = "your-us-db-host"
+db_port    = "5432"
+db_name    = "nicheflow"
+db_user    = "your-db-user"
+db_password = "your-db-password"
+
+# Redis 配置
+redis_host_hk = "your-hk-redis-host"
+redis_host_us = "your-us-redis-host"
+redis_port    = "6379"
+redis_password = "your-redis-password"
+
+# Clerk 配置
+clerk_api_key      = "your-clerk-api-key"
+clerk_frontend_api = "your-clerk-frontend-api"
+
+# OpenAI 配置
+openai_api_key = "your-openai-api-key"
+
+# Anthropic 配置
+anthropic_api_key = "your-anthropic-api-key" 
